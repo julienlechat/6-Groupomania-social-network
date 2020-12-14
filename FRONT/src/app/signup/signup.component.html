@@ -1,0 +1,31 @@
+<body class="text-center">
+
+  <div class="container mt-4 alert alert-danger" role="alert" *ngIf="errorMsg">
+    {{ errorMsg }}
+  </div>
+
+    <main class="form-signin">
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <img src="../assets/images/logos/icon-above-font.svg" alt="" width="250" height="250">
+        <h1 class="h3 mb-3 fw-normal">Inscription</h1>
+        <label for="lastname" class="visually-hidden">Nom</label>
+        <input type="text" id="lastname" class="form-control" placeholder="Nom de famille" formControlName="lastname" required minlength="3" maxlength="20">
+
+        <label for="firstname" class="visually-hidden">Prénom</label>
+        <input type="text" id="firstname" class="form-control" placeholder="Prénom" formControlName="firstname" required minlength="3" maxlength="20">
+
+        <label for="email" class="visually-hidden">Adresse email</label>
+        <input type="email" id="email" class="form-control" placeholder="Adresse email" formControlName="email" required>
+
+        <label for="password" class="visually-hidden">Mot de passe</label>
+        <input type="password" id="password" class="form-control" placeholder="Mot de passe" formControlName="password" required>
+        <label for="password2" class="visually-hidden">Répeter Mot de passe</label>
+        <input type="password" id="password2" class="form-control" placeholder="Confirmation Mot de passe" formControlName="password2" required>
+
+        <button class="w-100 btn btn-lg btn-primary" type="submit" [disabled]="signupForm.invalid">S'inscrire</button>
+
+        <p class="mt-5 mb-3 text-muted">&copy; 2020 - Julien LECHAT</p>
+      </form>
+    </main>
+    
+  </body>

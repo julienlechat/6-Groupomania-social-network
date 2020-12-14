@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg navbar-dark primary-color">
+    <div class="container">
+    <a class="navbar-brand" *ngIf="!isAuth" routerLink="login">
+        <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
+    </a>
+    <a class="navbar-brand" *ngIf="isAuth" routerLink="accueil">
+        <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
+    </a>
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end" *ngIf="!isAuth">
+        <button type="button" routerLink="signup" class="btn btn-sm btn-outline-light me-2">Inscription</button>
+        <button type="button" routerLink="login" class="btn btn-sm btn-light">Connexion</button>
+      </div>
+      <ul class="navbar-nav d-md-flex justify-content-end align-items-center" *ngIf="isAuth">
+        <a class="nav-link waves-effect waves-light me-2">
+            <i class="far fa-envelope"></i>
+        </a>
+        <a class="nav-link waves-effect waves-light me-2">
+            <i class="far fa-bell"></i>
+        </a>
+        <li class="nav-item avatar">
+          <a class="nav-link p-0" href="#">
+            <img src="https://mdbootstrap.com/img/Photos/Avatars/avatar-5.jpg" class="rounded-circle z-depth-0" alt="avatar image" height="40">
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
