@@ -31,11 +31,11 @@ export class AuthService {
 
     getToken() {
         return this.authToken;
-      }
+    }
     
-      getUserId() {
+    getUserId() {
         return this.userId;
-      }
+    }
 
     loginUser(email: string, password: string) {
         return new Promise((resolve, reject) => {
@@ -43,8 +43,8 @@ export class AuthService {
             (response: {userId?: string, token?: string}) => {
                 this.userId = response.userId;
                 this.authToken = response.token;
+                localStorage.setItem('token', response.token!);
                 this.isAuth$.next(true);
-                console.log(response)
                 resolve();
             },
             (error) => {

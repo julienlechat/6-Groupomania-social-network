@@ -6,7 +6,7 @@
     <a class="navbar-brand" *ngIf="isAuth" routerLink="accueil">
         <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
     </a>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-end" *ngIf="!isAuth">
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-end" *ngIf="!isAuth">
         <button type="button" routerLink="signup" class="btn btn-sm btn-outline-light me-2">Inscription</button>
         <button type="button" routerLink="login" class="btn btn-sm btn-light">Connexion</button>
       </div>
@@ -18,9 +18,14 @@
             <i class="far fa-bell"></i>
         </a>
         <li class="nav-item avatar">
-          <a class="nav-link p-0" href="#">
-            <img src="https://mdbootstrap.com/img/Photos/Avatars/avatar-5.jpg" class="rounded-circle z-depth-0" alt="avatar image" height="40">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img src="../../assets/images/test.jpg" width="40" height="40" class="rounded-circle">
           </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="#">Dashboard</a>
+            <a class="dropdown-item" href="#">Edit Profile</a>
+            <a class="dropdown-item" href="#">Log Out</a>
+          </div>
         </li>
       </ul>
     </div>

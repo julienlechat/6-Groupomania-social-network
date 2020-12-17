@@ -1,0 +1,21 @@
+.gp-date {
+  font-size: 12px;
+}
+.img-actuality {
+  width: 100%;
+}
+.gp-like,
+.gp-dislike {
+  width: 160px;
+}
+.gp-like:hover {
+  color: green;
+  font-weight: bold;
+}
+.gp-dislike:hover {
+  color: red;
+  font-weight: bold;
+}
+.gp-cpt {
+  width: 165px;
+}

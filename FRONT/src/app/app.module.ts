@@ -9,13 +9,15 @@ import { SignupComponent } from './signup/signup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth-interceptor';
+import { ActualityComponent } from './actuality/actuality.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     LoginComponent,
-    SignupComponent
+    SignupComponent,
+    ActualityComponent
   ],
   imports: [
     BrowserModule,

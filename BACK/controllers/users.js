@@ -51,7 +51,6 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
     const { email, password } = req.body
-
     if (!email || !password) return res.status(400).json({error: "Vous devez remplir les deux champs."})
 
     const string = "SELECT * FROM users WHERE email = ?"
@@ -59,9 +58,22 @@ exports.login = (req, res, next) => {
 
     const userFind = db.query(sql, (error, user) => {
 
-       if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
+        if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
 
-       console.log(user[0].password)
+        bcrypt.compare(password, user[0].password)
+            .then(valid => {
+                if (!valid) return res.status(500).json({error: "Mot de passe invalide !"})
+                res.status(200).json({
+                    userId: user[0].id,
+                    token: jwt.sign(
+                        {userId: user[0].id},
+                        'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0',
+                        {expiresIn: '24h'}
+                    )
+                })
+            })
+            .catch(error => res.status(501).json({error}))
+        
 
     })
 
