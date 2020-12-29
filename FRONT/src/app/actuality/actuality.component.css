@@ -7,14 +7,17 @@
 .gp-like,
 .gp-dislike {
   width: 160px;
+  transition: 0.2s;
 }
 .gp-like:hover {
   color: green;
   font-weight: bold;
+  transform: scale(1.15);
 }
 .gp-dislike:hover {
   color: red;
   font-weight: bold;
+  transform: scale(1.15);
 }
 .gp-cpt {
   width: 165px;

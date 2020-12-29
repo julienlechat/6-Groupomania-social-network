@@ -10,6 +10,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { ActualityComponent } from './actuality/actuality.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FileUploadComponent } from './file-upload/file-upload.component';
 
 @NgModule({
   declarations: [
@@ -17,14 +19,16 @@ import { ActualityComponent } from './actuality/actuality.component';
     HeaderComponent,
     LoginComponent,
     SignupComponent,
-    ActualityComponent
+    ActualityComponent,
+    FileUploadComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
   bootstrap: [AppComponent]

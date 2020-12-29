@@ -1,9 +1,11 @@
 const express = require('express')
 const app = express();
 const bodyParser = require('body-parser')
+const path = require('path')
 
 // ROUTE
 const usersRoute = require('./routes/users')
+const actualityRoute = require('./routes/actuality')
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
@@ -15,7 +17,11 @@ app.use((req, res, next) => {
 // PARSE LE BODY EN JSON
 app.use(bodyParser.json())
 
+// ASSOCIE LE CHEMIN '/images' AU DOSSIER 'images'
+app.use('/images', express.static(path.join(__dirname, 'images')))
+
 app.use('/api/auth', usersRoute)
+app.use('/api/actuality', actualityRoute)
 
 // EXPORT LE CONTENU
 module.exports = app;
