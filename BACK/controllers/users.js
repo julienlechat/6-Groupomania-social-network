@@ -1,6 +1,6 @@
 const mysql = require('mysql')
-const bcrypt = require('bcrypt')
 const db = require('../mysql')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const pwdValidator = require('password-validator')
 

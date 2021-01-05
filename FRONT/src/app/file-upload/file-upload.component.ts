@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { PostStatut } from './postStatut';
+import { PostStatut } from '../services/postStatut.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-file-upload',
@@ -15,7 +16,7 @@ export class FileUploadComponent implements OnInit {
   uploadForm: FormGroup;
 
 
-  constructor(public fb: FormBuilder,private postStatut: PostStatut) {
+  constructor(public fb: FormBuilder,private postStatut: PostStatut,private router: Router) {
     // Reactive Form
     this.uploadForm = this.fb.group({
       imgPost: [null],
@@ -28,8 +29,6 @@ export class FileUploadComponent implements OnInit {
   suprAlert() {
     this.errorMsg = undefined
   }
-  
-
 
   // Image Preview
   showPreview(event: any) {
@@ -38,16 +37,12 @@ export class FileUploadComponent implements OnInit {
     this.uploadForm.patchValue({
       imgPost: file
     });
-
     this.uploadForm.get('imgPost')?.updateValueAndValidity()
-
     // File Preview
     const reader = new FileReader();
-
     reader.onload = () => {
       this.imageURL = reader.result as string;
     }
-
     reader.readAsDataURL(file)
   }
 
@@ -66,18 +61,26 @@ export class FileUploadComponent implements OnInit {
       return
     }
     
-
+    // Envoie le statut et l'image au serveur
     this.postStatut.post(statut, img).then(
       () => {
-        console.log("j'envoie au serveur")
+      // Actualiser la page
+      let currentUrl = this.router.url;
+      this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+      this.router.onSameUrlNavigation = 'reload';
+      this.router.navigate([currentUrl]);
       }
     )
-    //.catch(
-      //(error) => {
-        //console.log(error.message)
-        //this.errorMsg = error.message;
-     // }
-    //);
+    .catch(
+      (error) => {
+        if (error.status === 400) {
+          this.errorMsg = error.error.message;
+        } else {
+          this.errorMsg = error.message;
+        }
+        
+      }
+    );
 
 
   }

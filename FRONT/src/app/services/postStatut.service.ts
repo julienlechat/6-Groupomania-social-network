@@ -19,7 +19,7 @@ export class PostStatut {
 
             if (post !== 'none' && image === 'none') {
                 console.log("pas d'image mais 1 post")
-                formData.append('post', JSON.stringify(post));
+                formData.append('post', post);
                 this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(
                     (response: { message?: string }) => {
                         resolve(response);
@@ -42,7 +42,7 @@ export class PostStatut {
 
             } else {
                 console.log("un post + 1 image")
-                formData.append('post', JSON.stringify(post));
+                formData.append('post', post);
                 formData.append('image', image);
 
                 this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(

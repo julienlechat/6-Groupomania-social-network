@@ -15,9 +15,11 @@ app.use((req, res, next) => {
   });
 
 // PARSE LE BODY EN JSON
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
 // ASSOCIE LE CHEMIN '/images' AU DOSSIER 'images'
+app.use('/images/post', express.static(path.join(__dirname, 'images/post')))
 app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use('/api/auth', usersRoute)
