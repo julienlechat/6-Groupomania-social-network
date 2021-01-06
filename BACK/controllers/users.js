@@ -73,8 +73,32 @@ exports.login = (req, res, next) => {
                 })
             })
             .catch(error => res.status(501).json({error}))
-        
+    })
+}
 
+exports.isLogged = (req, res, next) => {
+    const { token } = req.body
+
+    //Check l'utilisateur et récupére son id
+    const checkId = () => {
+        if (token) {
+            const { userId } = jwt.verify(token, 'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0', 
+            (err, decoded) => decoded !== undefined ? decoded : err)
+            
+            return userId
+        }
+        throw 'error token with post'
+    }
+    const userId = checkId()
+
+    if (isNaN(userId)) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+
+    const string = "SELECT id FROM users WHERE id = ?"
+    const sql = mysql.format(string, [userId])
+
+    db.query(sql, (error, user) => {
+        if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
+        if (!error) return res.status(200).json({userId: user[0].id})
     })
 
 }

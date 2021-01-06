@@ -5,4 +5,5 @@ export class Actuality {
     date?: Date;
     img?: string;
     text?: string;
+    editable?: boolean;
   }

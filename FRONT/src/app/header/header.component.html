@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark primary-color">
+<nav class="navbar navbar-expand navbar-dark primary-color">
     <div class="container">
     <a class="navbar-brand" *ngIf="!isAuth" routerLink="login">
         <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
@@ -6,24 +6,23 @@
     <a class="navbar-brand" *ngIf="isAuth" routerLink="accueil">
         <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
     </a>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-end" *ngIf="!isAuth">
+      <div class="d-grid gap-2 d-flex justify-content-end" *ngIf="!isAuth">
         <button type="button" routerLink="signup" class="btn btn-sm btn-outline-light me-2">Inscription</button>
         <button type="button" routerLink="login" class="btn btn-sm btn-light">Connexion</button>
       </div>
-      <ul class="navbar-nav d-md-flex justify-content-end align-items-center" *ngIf="isAuth">
-        <a class="nav-link waves-effect waves-light me-2">
-            <i class="far fa-envelope"></i>
+      <ul class="navbar-nav d-flex justify-content-end align-items-center" *ngIf="isAuth">
+        <a class="nav-link-gp waves-effect waves-light me-2">
+          <i class="nav-ico far fa-bell"></i>
         </a>
-        <a class="nav-link waves-effect waves-light me-2">
-            <i class="far fa-bell"></i>
+        <a class="nav-link-gp waves-effect waves-light me-2">
+          <i class="nav-ico fas fa-sitemap"></i>
         </a>
-        <li class="nav-item avatar">
-          <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img src="../../assets/images/test.jpg" width="40" height="40" class="rounded-circle">
-          </a>
-
-
-        </li>
+        <a class="nav-link-gp me-2">
+          <img src="../../assets/images/test.jpg" class="img-profil">
+        </a>
+        <a class="nav-link-gp waves-effect waves-light me-2" (click)="onLogout()">
+          <i class="nav-ico fas fa-sign-out-alt"></i>
+        </a>
       </ul>
     </div>
   </nav>

@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class AuthService {
 
     isAuth$ = new BehaviorSubject<boolean>(false);
-    private authToken?: string;
+    private authToken?: string | null;
     private userId?: string;
 
     constructor(private http: HttpClient,
@@ -37,13 +37,29 @@ export class AuthService {
         return this.userId;
     }
 
-    loginUser(email: string, password: string) {
-        return new Promise((resolve, reject) => {
+    loginUser(email: string, password: string, rememberme: Boolean) {
+        return new Promise<void>((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password}).subscribe(
             (response: {userId?: string, token?: string}) => {
                 this.userId = response.userId;
                 this.authToken = response.token;
-                localStorage.setItem('token', response.token!);
+                if (rememberme === true) localStorage.setItem('token', response.token!);
+                this.isAuth$.next(true);
+                resolve();
+            },
+            (error) => {
+                reject(error);
+            }
+            );
+        });
+    }
+
+    isLogged(token: string | null) {
+        return new Promise<void>((resolve, reject) => {
+          this.http.post('http://localhost:3000/api/auth/islogged', {token: token}).subscribe(
+            (response: {userId?: string}) => {
+                this.userId = response.userId;
+                this.authToken = localStorage.getItem('token');
                 this.isAuth$.next(true);
                 resolve();
             },
@@ -57,6 +73,7 @@ export class AuthService {
     logout() {
         this.authToken = null!;
         this.userId = null!;
+        localStorage.removeItem('token');
         this.isAuth$.next(false);
         this.router.navigate(['login']);
     }

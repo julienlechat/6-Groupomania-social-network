@@ -14,7 +14,7 @@
         <input type="password" id="password" class="form-control" placeholder="Mot de passe" formControlName="password" required>
         <div class="checkbox mb-3">
           <label>
-            <input type="checkbox" value="remember-me"> Se souvenir de moi
+            <input type="checkbox" value="remember-me" (change)="remember()"> Se souvenir de moi
           </label>
         </div>
         <button class="w-100 btn btn-lg btn-primary" type="submit" [disabled]="loginForm.invalid">Se connecter</button>

@@ -5,7 +5,7 @@
       Votre fil d'actualité est vide.
     </p>
 
-    <div *ngIf="actus!.length > 0">
+    
       <div *ngFor="let actu of actus" class="card text-center mt-4 mx-auto" style="max-width: 800px;">
         <div class="card-header d-flex align-items-center bg-white">
           <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle">
@@ -15,8 +15,8 @@
           </div>
         </div>
         <div class="card-body p-0">
-            <img *ngIf="actu.img !== null" [src]="actu.img" alt="" class="img-fluid img-actuality">
-            <p *ngIf="actu.text !== null" class="card-text my-3">{{ actu.text }}</p>
+            <img *ngIf="actu.img" [src]="actu.img" alt="" class="img-fluid img-actuality">
+            <p *ngIf="actu.text" class="card-text text-start my-3 mx-3">{{ actu.text }}{{ actu.editable }}</p>
         </div>
         <div class="card-footer text-muted d-flex justify-content-evenly px-2">
             <button type="button" class="btn gp-like">
@@ -30,6 +30,5 @@
             </button>
         </div>
       </div>
-    </div>
 
 </div>

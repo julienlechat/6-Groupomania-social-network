@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   
   errorMsg?: string;
+  rememberme: Boolean = false;
 
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required]),
@@ -23,12 +24,15 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  remember(): void {
+    this.rememberme === false ? this.rememberme = true : this.rememberme = false
+  }
+
   onSubmit(): void {
     const email = this.loginForm.get('email')?.value;
     const password = this.loginForm.get('password')?.value;
-    this.auth.loginUser(email, password).then(
+    this.auth.loginUser(email, password, this.rememberme).then(
       () => {
-        console.log('je suis co')
         this.router.navigate(['/accueil']);
       }
     ).catch(

@@ -11,7 +11,7 @@ exports.post = (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1]
 
     //Check l'utilisateur et récupére son id
-    const check = () => {
+    const userId = () => {
         if (token) {
             const { userId } = jwt.verify(token, 'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0', 
             (err, decoded) => decoded !== undefined ? decoded : err)
@@ -21,11 +21,11 @@ exports.post = (req, res, next) => {
         throw 'error token with post'
     }
     //Si check() ne retourne pas de chiffre, le token n'est pas valide
-    if (isNaN(check())) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+    if (isNaN(userId())) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
 
     // Préparation de la requete suivant les cas reçus
     const sql = () => {
-        const userId = check();
+        const userId = userId();
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
         console.log(date)
 
@@ -50,8 +50,20 @@ exports.post = (req, res, next) => {
 
 exports.getActus = (req,res,next) => {
     const Actus = [];
+    const token = req.headers.authorization.split(' ')[1]
 
-    const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil
+    //Check l'utilisateur et récupére son id
+    const userId = () => {
+        if (token) {
+            const { userId } = jwt.verify(token, 'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0', 
+            (err, decoded) => decoded !== undefined ? decoded : err)
+            
+            return userId
+        }
+        throw 'error token with post'
+    }
+
+    const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil, users.id, users.role
                 FROM post
                 join users on post.user = users.id
                 ORDER BY post.id DESC LIMIT 10`
@@ -61,41 +73,30 @@ exports.getActus = (req,res,next) => {
         if (!error) {
             for (i=0; i<post.length; i++) {
                 const date = moment(post[i].date).locale("fr").format('Do MMMM YYYY à HH:mm')
-
-                if (post[i].img === null && post[i].text !== null) {
-                    Actus.push({
-                        lastname: post[i].lastname,
-                        firstname: post[i].firstname,
-                        img_profil: 'http://localhost:4200/assets/images/test.jpg',
-                        date: date,
-                        img: null,
-                        text: post[i].text
-                    })
-                } else if (post[i].img !== null && post[i].text === null) {
-                    Actus.push({
-                        lastname: post[i].lastname,
-                        firstname: post[i].firstname,
-                        img_profil: 'http://localhost:4200/assets/images/test.jpg',
-                        date: date,
-                        img: 'http://localhost:3000/images/post/' + post[i].img,
-                        text: null
-                    })
-                }else {
-                    Actus.push({
-                        lastname: post[i].lastname,
-                        firstname: post[i].firstname,
-                        img_profil: 'http://localhost:4200/assets/images/test.jpg',
-                        date: date,
-                        img: 'http://localhost:3000/images/post/' + post[i].img,
-                        text: post[i].text
-                    })
+                
+                const editable = () => {
+                    if (post[i].id === userId() || post[i].role === 1) {
+                        return new Boolean(true)
+                    } else {
+                        return new Boolean(false)
+                    }
                 }
+
+                console.log(editable())
+                Actus.push({
+                    lastname: post[i].lastname,
+                    firstname: post[i].firstname,
+                    img_profil: 'http://localhost:4200/assets/images/test.jpg',
+                    date: date,
+                    img: post[i].img ? 'http://localhost:3000/images/post/' + post[i].img : null,
+                    text: post[i].text,
+                    editable: editable()
+                })
+                
             }
             res.status(200).json(Actus)
 
         } 
         else { res.status(400).json({error}) }
     })
-
-      //res.status(200).json(Actus)
 }
