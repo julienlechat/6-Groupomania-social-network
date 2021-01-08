@@ -27,5 +27,41 @@ export class ActualityService {
     );
   }
 
+  likePost(idPost: number) {
+    return new Promise((resolve, reject) => {
+      this.http.post(
+        'http://localhost:3000/api/actuality/like',
+        {
+          idPost: idPost
+        })
+        .subscribe(
+          (response: { statut?: number }) => {
+            resolve(response);
+          },
+          (error) => {
+            reject(error);
+        }
+      );
+    });
+  }
+
+  dislikePost(idPost: number) {
+    return new Promise((resolve, reject) => {
+      this.http.post(
+        'http://localhost:3000/api/actuality/dislike',
+        {
+          idPost: idPost
+        })
+        .subscribe(
+          (response: { statut?: number }) => {
+            resolve(response);
+          },
+          (error) => {
+            reject(error);
+        }
+      );
+    });
+  }
+
 
 }

@@ -7,7 +7,9 @@
   object-fit: cover;
 }
 .gp-like,
-.gp-dislike {
+.gp-dislike,
+.gp-liked,
+.gp-disliked {
   width: 160px;
   transition: 0.2s;
 }
@@ -21,6 +23,22 @@
   font-weight: bold;
   transform: scale(1.15);
 }
+.gp-liked {
+  color: green;
+  font-weight: bold;
+  transform: scale(1.15);
+}
+.gp-disliked {
+  color: red;
+  font-weight: bold;
+  transform: scale(1.15);
+}
 .gp-cpt {
   width: 165px;
+}
+.card-header {
+  padding: 0.5rem 0.5rem 0.5rem 0.8rem;
+}
+.likebar {
+  padding: 2px;
 }
