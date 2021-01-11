@@ -8,5 +8,6 @@ route.post('/post', multer, actuCtrl.post)
 route.get('/actus', actuCtrl.getActus, actuCtrl.getActusLike)
 route.post('/like', actuCtrl.likePost)
 route.post('/dislike', actuCtrl.dislikePost)
+route.post('/addComment', actuCtrl.checkPost, actuCtrl.addComment)
 
 module.exports = route

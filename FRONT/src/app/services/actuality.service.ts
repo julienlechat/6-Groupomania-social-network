@@ -63,5 +63,24 @@ export class ActualityService {
     });
   }
 
+  addComment(idPost: number, msg: String) {
+    return new Promise((resolve, reject) => {
+      this.http.post(
+        'http://localhost:3000/api/actuality/addComment',
+        {
+          idPost: idPost,
+          msg: msg
+        })
+        .subscribe(
+          (response: { statut?: number }) => {
+            resolve(response);
+          },
+          (error) => {
+            reject(error);
+        }
+      );
+    });
+  }
+
 
 }

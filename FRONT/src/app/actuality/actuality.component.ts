@@ -106,8 +106,22 @@ export class ActualityComponent implements OnInit {
       .catch(
         (error) => {
             console.log(error)
+      })
+  }
+
+  addComment(event: any, id: number):void {
+    const text = event.srcElement.children[0].children[0].children[1].value;
+
+    this.Actuality.addComment(id, text)
+      .then(
+        (res: any) => {
+          console.log(res)
         }
       )
+      .catch(
+        (error) => {
+          console.log(error)
+      })
   }
 
   deletePost(idpost?: number):void {

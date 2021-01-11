@@ -4,6 +4,8 @@ const fn = require('../middleware/function')
 var moment = require('moment')
 const date = moment().format('YYYY-MM-DD HH:mm:ss');
 
+
+// Ajouter un post
 exports.post = (req, res, next) => {
     //Réception des informations
     const {post} = req.body
@@ -34,6 +36,7 @@ exports.post = (req, res, next) => {
     })
 }
 
+// Charger la page d'actualité
 exports.getActus = (req,res,next) => {
     const Actus = []
     const token = req.headers.authorization.split(' ')[1]
@@ -73,6 +76,7 @@ exports.getActus = (req,res,next) => {
         })
 }
 
+// Récupére les likes et les ajoutes dans le tableau réponse
 exports.getActusLike = (req, res, next) => {
     const Actus = req.actus
     var count = 0
@@ -96,6 +100,7 @@ exports.getActusLike = (req, res, next) => {
 
 }
 
+// Ajoute un like sur un post
 exports.likePost = (req,res,next) => {
     //Réception des informations
     const {idPost} = req.body
@@ -141,6 +146,7 @@ exports.likePost = (req,res,next) => {
     })
 }
 
+// Ajoute un dislike sur un post
 exports.dislikePost = (req,res,next) => {
     //Réception des informations
     const {idPost} = req.body
@@ -183,5 +189,37 @@ exports.dislikePost = (req,res,next) => {
                 res.status(201).json({ statut: 1})
             })
         }
+    })
+}
+
+// Vérifie si le post existe
+exports.checkPost = (req, res, next) => {
+    const idPost = req.body.idPost
+
+    const reqString = `SELECT COUNT(*) FROM post WHERE id = ?`
+    const reqSql = mysql.format(reqString, [idPost])
+
+    db.query(reqSql, (error, post) => {
+        if (error) res.status(400).json({error})
+        if (post.length !== 1) res.status(401).json({error})
+        next();
+    })
+    
+}
+
+// Ajoute un commentaire
+exports.addComment = (req, res, next) => {
+    const { idPost, msg } = req.body;
+    const token = req.headers.authorization.split(' ')[1]
+    const userId = fn.userId(token);
+
+    if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+
+    const reqString = "INSERT INTO post_comment (`user`, `msg`, `date`, `id_post`) VALUES (?, ?, ?, ?)";
+    const sqlReq = mysql.format(reqString, [userId, msg, date, idPost])
+
+    db.query(sqlReq, (error) => {
+        if (error) res.status(400).json({error})
+        res.status(201).json({ statut: 1})
     })
 }

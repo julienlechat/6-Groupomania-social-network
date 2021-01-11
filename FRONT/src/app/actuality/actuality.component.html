@@ -11,7 +11,7 @@
         <div class="card-header d-flex justify-content-between bg-white">
           <div class="d-flex align-items-center">
             <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle">
-            <div class="ms-3 align-items-left">
+            <div class="ms-2 align-items-left">
               <p class="m-0 fw-bold text-start">{{ actu.firstname }} {{ actu.lastname }}</p>
               <p class="m-0 text-start text-muted gp-date">Publié le {{ actu.date }}</p>
             </div>
@@ -27,7 +27,7 @@
             <img *ngIf="actu.img" [src]="actu.img" alt="" class="img-fluid img-actuality" id="dynamic" (click)="clicTest($event)">
             <p *ngIf="actu.text" class="card-text text-start my-3 mx-3">{{ actu.text }}</p>
         </div>
-        <div class="card-footer text-muted d-flex justify-content-evenly px-2 likebar">
+        <div class="card-body text-muted d-flex justify-content-evenly px-2 likebar">
             <button (click)="likePost(actu.postId)" type="button" [ngClass]="(actu.liked && actu.liked > 0)?'btn gp-liked':'btn gp-like'">
                 <i class="far fa-thumbs-up"></i>
                 {{ actu.like }}
@@ -38,6 +38,27 @@
                 {{ actu.dislike }}
             </button>
         </div>
+        <div class="card-body p-0 mb-2">
+          <div class="d-flex align-items-center mx-4 my-2">
+            <img [src]="actu.img_profil" width="45" height="45" class="rounded-circle">
+            <div class="ms-2 d-flex justify-content-center flex-column">
+              <div class="d-flex flex-row">
+                <p class="m-0 fw-bold text-start">{{ actu.firstname }} {{ actu.lastname }}</p>
+                <p class="m-0 ms-1 text-start text-muted gp-date-com">• Aujourd’hui à 12:04</p>
+              </div>
+              <p class="m-0 d-flex">Je publie mon commentaire ici</p>
+            </div>
+          </div>
+        </div>
+        <form (submit)="addComment($event, actu.postId)">
+          <div class="card-footer text-muted d-flex justify-content-evenly px-3">
+            <div class="d-flex align-items-center" style="width: 100%">
+                <img [src]="actu.img_profil" width="45" height="45" class="rounded-circle">
+                <input placeholder="Exprimez vous..." maxlength="255" class="gp-textarea shadow-sm rounded ms-2 d-flex">
+            </div>
+          </div>
+        </form>
+
       </div>
 
 </div>
