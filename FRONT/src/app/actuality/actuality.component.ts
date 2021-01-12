@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActualityService } from '../services/actuality.service';
+import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
 import { Actuality } from '../models/Actuality.model';
 import 'lg-zoom.js';
@@ -16,15 +17,17 @@ export class ActualityComponent implements OnInit {
   actualitySub?: Subscription;
   actus: Actuality[] = [];
   lg: any;
+  img_profil?: string;
 
-  constructor(private Actuality: ActualityService) { }
+  constructor(private Actuality: ActualityService, private auth: AuthService) { }
 
 
   ngOnInit(): void {
+    this.img_profil = this.auth.getImgProfil();
     this.actualitySub = this.Actuality.Actuality$.subscribe(
       (actus) => {
-        this.actus = actus;
         console.log(actus)
+        this.actus = actus;
       },
       (error) => {
         console.log(error);
@@ -33,9 +36,7 @@ export class ActualityComponent implements OnInit {
     this.Actuality.getActuality();
   }
 
-  clicTest(event: any): void {
-    console.log('click')
-    console.log(event.srcElement.src)
+  viewPicture(event: any): void {
     this.lg = event.srcElement
     lightGallery(this.lg, {
       dynamic: true,
@@ -109,13 +110,15 @@ export class ActualityComponent implements OnInit {
       })
   }
 
-  addComment(event: any, id: number):void {
-    const text = event.srcElement.children[0].children[0].children[1].value;
+  addComment(event: any, idPost: number, id: number):void {
+    var text = event.srcElement.children[0].children[0].children[1].value;
 
-    this.Actuality.addComment(id, text)
+    this.Actuality.addComment(idPost, text)
       .then(
         (res: any) => {
           console.log(res)
+          this.actus[id] = {...this.actus[id],...res}
+          event.srcElement.children[0].children[0].children[1].value = null;
         }
       )
       .catch(

@@ -12,6 +12,7 @@ export class AuthService {
     isAuth$ = new BehaviorSubject<boolean>(false);
     private authToken?: string | null;
     private userId?: string;
+    private img_profil?: string;
 
     constructor(private http: HttpClient,
                 private router: Router) {}
@@ -37,11 +38,16 @@ export class AuthService {
         return this.userId;
     }
 
+    getImgProfil() {
+        return this.img_profil;
+    }
+
     loginUser(email: string, password: string, rememberme: Boolean) {
         return new Promise<void>((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password}).subscribe(
-            (response: {userId?: string, token?: string}) => {
+            (response: {userId?: string, img_profil?:string, token?: string}) => {
                 this.userId = response.userId;
+                this.img_profil = response.img_profil;
                 this.authToken = response.token;
                 if (rememberme === true) localStorage.setItem('token', response.token!);
                 this.isAuth$.next(true);
@@ -57,8 +63,9 @@ export class AuthService {
     isLogged(token: string | null) {
         return new Promise<void>((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/islogged', {token: token}).subscribe(
-            (response: {userId?: string}) => {
+            (response: {userId?: string, img_profil?:string}) => {
                 this.userId = response.userId;
+                this.img_profil = response.img_profil;
                 this.authToken = localStorage.getItem('token');
                 this.isAuth$.next(true);
                 resolve();

@@ -11,6 +11,7 @@ export class HeaderComponent implements OnInit {
 
   isAuth!: boolean;
   authSubscription!: Subscription;
+  img_profil?: string;
 
   constructor(private auth: AuthService) { }
 
@@ -18,6 +19,7 @@ export class HeaderComponent implements OnInit {
     this.authSubscription = this.auth.isAuth$.subscribe(
       (auth) => {
         this.isAuth = auth;
+        this.img_profil = this.auth.getImgProfil();
       }
     );
 }

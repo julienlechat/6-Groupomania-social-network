@@ -20,7 +20,7 @@ app.use(bodyParser.json())
 
 // ASSOCIE LE CHEMIN '/images' AU DOSSIER 'images'
 app.use('/images/post', express.static(path.join(__dirname, 'images/post')))
-app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use('/images/profile', express.static(path.join(__dirname, 'images/profile')))
 
 app.use('/api/auth', usersRoute)
 app.use('/api/actuality', actualityRoute)

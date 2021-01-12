@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { PostStatut } from '../services/postStatut.service';
+import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,8 +16,10 @@ export class FileUploadComponent implements OnInit {
   imageURL?: string;
   uploadForm: FormGroup;
 
+  img_profil?: string;
 
-  constructor(public fb: FormBuilder,private postStatut: PostStatut,private router: Router) {
+
+  constructor(public fb: FormBuilder,private postStatut: PostStatut,private router: Router, private auth: AuthService) {
     // Reactive Form
     this.uploadForm = this.fb.group({
       imgPost: [null],
@@ -24,7 +27,9 @@ export class FileUploadComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.img_profil = this.auth.getImgProfil();
+  }
 
   suprAlert() {
     this.errorMsg = undefined

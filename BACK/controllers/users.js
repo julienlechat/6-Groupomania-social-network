@@ -3,6 +3,7 @@ const db = require('../mysql')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const pwdValidator = require('password-validator')
+const fn = require('../middleware/function')
 
 // Exigence du mot de passe
 let pwd = new pwdValidator();
@@ -38,7 +39,7 @@ exports.signup = (req, res, next) => {
                 const insert = [email, hash, lastname, firstname];
                 const sql = mysql.format(string, insert);
 
-                const userSignup = db.query(sql, (error, user) => {
+                db.query(sql, (error, user) => {
                     if (!error) { res.status(201).json({ message: user})} 
                     else { res.status(400).json({error}) }
                 })
@@ -53,10 +54,10 @@ exports.login = (req, res, next) => {
     const { email, password } = req.body
     if (!email || !password) return res.status(400).json({error: "Vous devez remplir les deux champs."})
 
-    const string = "SELECT * FROM users WHERE email = ?"
+    const string = "SELECT id, password, img_profil, role FROM users WHERE email = ?"
     const sql = mysql.format(string, [email])
 
-    const userFind = db.query(sql, (error, user) => {
+    db.query(sql, (error, user) => {
 
         if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
 
@@ -65,8 +66,10 @@ exports.login = (req, res, next) => {
                 if (!valid) return res.status(500).json({error: "Mot de passe invalide !"})
                 res.status(200).json({
                     userId: user[0].id,
+                    img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
                     token: jwt.sign(
-                        {userId: user[0].id},
+                        {userId: user[0].id,
+                        role: user[0].role},
                         'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0',
                         {expiresIn: '24h'}
                     )
@@ -80,25 +83,15 @@ exports.isLogged = (req, res, next) => {
     const { token } = req.body
 
     //Check l'utilisateur et récupére son id
-    const checkId = () => {
-        if (token) {
-            const { userId } = jwt.verify(token, 'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0', 
-            (err, decoded) => decoded !== undefined ? decoded : err)
-            
-            return userId
-        }
-        throw 'error token with post'
-    }
-    const userId = checkId()
-
+    const userId = fn.userId(token)
     if (isNaN(userId)) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
 
-    const string = "SELECT id FROM users WHERE id = ?"
+    const string = "SELECT id, img_profil FROM users WHERE id = ?"
     const sql = mysql.format(string, [userId])
 
     db.query(sql, (error, user) => {
         if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
-        if (!error) return res.status(200).json({userId: user[0].id})
+        if (!error) return res.status(200).json({userId: user[0].id, img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png'})
     })
 
 }

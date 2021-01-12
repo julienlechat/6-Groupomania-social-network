@@ -1,8 +1,8 @@
 const mysql = require('mysql')
 const db = require('../mysql')
 const fn = require('../middleware/function')
-var moment = require('moment')
-const date = moment().format('YYYY-MM-DD HH:mm:ss');
+var moment = require('moment');
+const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
 
 // Ajouter un post
@@ -41,6 +41,9 @@ exports.getActus = (req,res,next) => {
     const Actus = []
     const token = req.headers.authorization.split(' ')[1]
     const userId = fn.userId(token)
+    const role = fn.userRole(token)
+
+    console.log(role, typeof(role))
 
     const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id
                 FROM post
@@ -54,15 +57,16 @@ exports.getActus = (req,res,next) => {
             
             const date = moment(post[i].date).locale("fr").format('Do MMMM YYYY à HH:mm')
             const editable = () => {
-                if (post[i].user === userId || post[i].role === 1) return true
+                if (post[i].user === userId || role === 1) return true
                 return false
             }
             
             Actus.push({
+                id: i,
                 postId: post[i].id,
                 lastname: post[i].lastname,
                 firstname: post[i].firstname,
-                img_profil: 'http://localhost:4200/assets/images/test.jpg',
+                img_profil: post[i].img_profil ? 'http://localhost:3000/images/profile/' + post [i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
                 date: date,
                 img: post[i].img ? 'http://localhost:3000/images/post/' + post[i].img : null,
                 text: post[i].text,
@@ -94,10 +98,54 @@ exports.getActusLike = (req, res, next) => {
             Actus[count] = {...Actus[count],...{like: post[0].numberLike, dislike: post[0].numberDislike, liked: post[0].likedByUser}}
 
             count += 1
+            if (count === Actus.length) {
+                req.actus = Actus;
+                next();
+            }
+        })
+    }
+}
+
+// Récupére les commentaires et les ajoutes dans le tableau réponse
+exports.getActusComment = (req, res, next) => {
+    const Actus = req.actus
+    var count = 0
+
+    for (i = 0; i<Actus.length; i++) {
+        const sql = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
+                    FROM post_comment
+                    join users on post_comment.user = users.id
+                    WHERE id_post = ?
+                    ORDER BY post_comment.id`
+        const reqsql = mysql.format(sql, [Actus[i].postId])
+
+        db.query(reqsql, (error, post) => {
+            const comment = []
+
+            if (error) res.status(400).json({error})
+
+            for (i=0; i < post.length; i++) {
+                const date = moment(post[i].date).locale("fr").calendar(); 
+
+                comment.push({
+                    userId: post[i].user,
+                    lastname: post[i].lastname,
+                    firstname: post[i].firstname,
+                    img_profil: post[i].img_profil ? 'http://localhost:3000/images/profile/' + post[i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    date: date,
+                    msg: post[i].msg
+                })
+            
+                if (i === post.length-1) Actus[count] = {...Actus[count],...{comments: comment}}
+            }
+
+
+            count += 1
             if (count === Actus.length) res.status(200).json(Actus)
         })
     }
 
+    
 }
 
 // Ajoute un like sur un post
@@ -108,7 +156,6 @@ exports.likePost = (req,res,next) => {
     const userId = fn.userId(token);
 
     if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
-
 
     const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
     const sql = mysql.format(string, [idPost, userId])
@@ -154,7 +201,6 @@ exports.dislikePost = (req,res,next) => {
     const userId = fn.userId(token);
 
     if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
-
 
     const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
     const sql = mysql.format(string, [idPost, userId])
@@ -220,6 +266,33 @@ exports.addComment = (req, res, next) => {
 
     db.query(sqlReq, (error) => {
         if (error) res.status(400).json({error})
-        res.status(201).json({ statut: 1})
+
+        const resString = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
+                            FROM post_comment
+                            join users on post_comment.user = users.id
+                            WHERE id_post = ?
+                            ORDER BY post_comment.id`
+        const resReq = mysql.format(resString, [idPost])
+
+        db.query(resReq, (error, comment) => {
+            if (error) res.status(400).json({error})
+
+            const comments = []
+
+            for (i=0; i<comment.length; i++) {
+                const date = moment(comment[i].date).locale("fr").calendar(); 
+
+                comments.push({
+                    userId: comment[i].user,
+                    lastname: comment[i].lastname,
+                    firstname: comment[i].firstname,
+                    img_profil: comment[i].img_profil ? 'http://localhost:3000/images/profile/' + comment[i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    date: date,
+                    msg: comment[i].msg
+                })
+            }
+
+            res.status(201).json({comments: comments})
+        })
     })
 }

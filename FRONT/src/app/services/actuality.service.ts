@@ -72,7 +72,7 @@ export class ActualityService {
           msg: msg
         })
         .subscribe(
-          (response: { statut?: number }) => {
+          (response: { comments?: any }) => {
             resolve(response);
           },
           (error) => {
