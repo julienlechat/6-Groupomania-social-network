@@ -9,5 +9,7 @@ route.get('/actus', actuCtrl.getActus, actuCtrl.getActusLike, actuCtrl.getActusC
 route.post('/like', actuCtrl.likePost)
 route.post('/dislike', actuCtrl.dislikePost)
 route.post('/addComment', actuCtrl.checkPost, actuCtrl.addComment)
+route.post('/deletePost', actuCtrl.deletePost)
+route.post('/deleteCom', actuCtrl.deleteCom)
 
 module.exports = route

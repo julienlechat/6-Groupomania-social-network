@@ -82,5 +82,41 @@ export class ActualityService {
     });
   }
 
+  deletePost(idPost: number) {
+    return new Promise((resolve, reject) => {
+      this.http.post(
+        'http://localhost:3000/api/actuality/deletePost',
+        {
+          postId: idPost
+        })
+        .subscribe(
+          (response: { statut?: number }) => {
+            resolve(response);
+          },
+          (error) => {
+            reject(error);
+        }
+      );
+    });
+  }
+
+  deleteCom(idCom: number) {
+    return new Promise((resolve, reject) => {
+      this.http.post(
+        'http://localhost:3000/api/actuality/deleteCom',
+        {
+          comId: idCom
+        })
+        .subscribe(
+          (response: { statut?: number }) => {
+            resolve(response);
+          },
+          (error) => {
+            reject(error);
+        }
+      );
+    });
+  }
+
 
 }

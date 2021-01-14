@@ -10,7 +10,13 @@ exports.post = (req, res, next) => {
     //Réception des informations
     const {post} = req.body
     const token = req.headers.authorization.split(' ')[1]
-    const userId = fn.userId(token)
+    
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
 
     //Si check() ne retourne pas de chiffre, le token n'est pas valide
     if (isNaN(userId)) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
@@ -36,14 +42,79 @@ exports.post = (req, res, next) => {
     })
 }
 
+// Delete un post
+exports.deletePost = (req, res, next) => {
+    const { postId } = req.body
+    const token = req.headers.authorization.split(' ')[1]
+    
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
+
+    const reqString = `SELECT id, user FROM post WHERE id = ?`
+    const reqSQL = mysql.format(reqString, [postId])
+
+    db.query(reqSQL, (error, post) => {
+        if (error) res.status(500).json({error})
+
+        if (post[0].user === userId || userRole === 1) {
+            const delString = `DELETE FROM post WHERE id = ?`
+            const delSQL = mysql.format(delString, [postId])
+
+            db.query(delSQL, (error) => {
+                if (error) res.status(400).json({error})
+                res.status(200).json({message: 'ok'})
+            })
+        }
+    })
+
+}
+
+// Delete un post
+exports.deleteCom = (req, res, next) => {
+    const { comId } = req.body
+    const token = req.headers.authorization.split(' ')[1]
+    
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
+
+    const reqString = `SELECT id, user FROM post_comment WHERE id = ?`
+    const reqSQL = mysql.format(reqString, [comId])
+
+    db.query(reqSQL, (error, post) => {
+        if (error) res.status(500).json({error})
+
+        if (post[0].user === userId || userRole === 1) {
+            const delString = `DELETE FROM post_comment WHERE id = ?`
+            const delSQL = mysql.format(delString, [comId])
+
+            db.query(delSQL, (error) => {
+                if (error) res.status(400).json({error})
+                res.status(200).json({message: 'ok'})
+            })
+        }
+    })
+
+}
+
 // Charger la page d'actualité
 exports.getActus = (req,res,next) => {
     const Actus = []
     const token = req.headers.authorization.split(' ')[1]
-    const userId = fn.userId(token)
-    const role = fn.userRole(token)
 
-    console.log(role, typeof(role))
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
 
     const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id
                 FROM post
@@ -112,7 +183,7 @@ exports.getActusComment = (req, res, next) => {
     var count = 0
 
     for (i = 0; i<Actus.length; i++) {
-        const sql = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
+        const sql = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                     FROM post_comment
                     join users on post_comment.user = users.id
                     WHERE id_post = ?
@@ -128,6 +199,8 @@ exports.getActusComment = (req, res, next) => {
                 const date = moment(post[i].date).locale("fr").calendar(); 
 
                 comment.push({
+                    id: i,
+                    comId: post[i].id,
                     userId: post[i].user,
                     lastname: post[i].lastname,
                     firstname: post[i].firstname,
@@ -153,9 +226,13 @@ exports.likePost = (req,res,next) => {
     //Réception des informations
     const {idPost} = req.body
     const token = req.headers.authorization.split(' ')[1]
-    const userId = fn.userId(token);
-
-    if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+    
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
 
     const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
     const sql = mysql.format(string, [idPost, userId])
@@ -193,14 +270,26 @@ exports.likePost = (req,res,next) => {
     })
 }
 
+
+
+/*
+
+
+*/
+
 // Ajoute un dislike sur un post
 exports.dislikePost = (req,res,next) => {
     //Réception des informations
     const {idPost} = req.body
     const token = req.headers.authorization.split(' ')[1]
-    const userId = fn.userId(token);
 
-    if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
+
 
     const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
     const sql = mysql.format(string, [idPost, userId])
@@ -257,7 +346,13 @@ exports.checkPost = (req, res, next) => {
 exports.addComment = (req, res, next) => {
     const { idPost, msg } = req.body;
     const token = req.headers.authorization.split(' ')[1]
-    const userId = fn.userId(token);
+
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
 
     if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
 
@@ -283,6 +378,8 @@ exports.addComment = (req, res, next) => {
                 const date = moment(comment[i].date).locale("fr").calendar(); 
 
                 comments.push({
+                    id: i,
+                    comId: comment[i].id,
                     userId: comment[i].user,
                     lastname: comment[i].lastname,
                     firstname: comment[i].firstname,

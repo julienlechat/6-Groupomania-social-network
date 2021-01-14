@@ -67,6 +67,7 @@ exports.login = (req, res, next) => {
                 res.status(200).json({
                     userId: user[0].id,
                     img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    role: user[0].role,
                     token: jwt.sign(
                         {userId: user[0].id,
                         role: user[0].role},
@@ -83,15 +84,19 @@ exports.isLogged = (req, res, next) => {
     const { token } = req.body
 
     //Check l'utilisateur et récupére son id
-    const userId = fn.userId(token)
-    if (isNaN(userId)) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
+    try { 
+        var {userId, role} = fn.tokenView(token)
+    }
+    catch(err) {
+        return res.status(400).json({message: err})
+    }
 
-    const string = "SELECT id, img_profil FROM users WHERE id = ?"
+    const string = "SELECT id, img_profil, role FROM users WHERE id = ?"
     const sql = mysql.format(string, [userId])
 
     db.query(sql, (error, user) => {
         if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
-        if (!error) return res.status(200).json({userId: user[0].id, img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png'})
+        if (!error) return res.status(200).json({userId: user[0].id, img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png', role: user[0].role})
     })
 
 }

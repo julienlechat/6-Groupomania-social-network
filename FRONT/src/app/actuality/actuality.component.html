@@ -5,26 +5,44 @@
       Votre fil d'actualité est vide.
     </p>
 
+    <div #alertDel class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 [innerHTML]="alertTitle" class="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p [innerHTML]="alertContent"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            <button type="button" class="btn btn-danger" (click)="delete()">SUPPRIMER</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     
       <div *ngFor="let actu of actus" class="card text-center mt-4 mx-auto" style="max-width: 800px;">
 
         <div class="card-header d-flex justify-content-between bg-white">
           <div class="d-flex align-items-center">
-            <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle">
+            <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle img-profil">
             <div class="ms-2 align-items-left">
               <p class="m-0 fw-bold text-start">{{ actu.firstname }} {{ actu.lastname }}</p>
               <p class="m-0 text-start text-muted gp-date">Publié le {{ actu.date }}</p>
             </div>
           </div>
           <div class="d-flex" *ngIf="actu.editable === true">
-            <a (click)="deletePost(actu.postId)" style="cursor: pointer;">
-              <i class="far fa-times-circle text-danger"></i>
+            <a (click)="showDeletePost(alertDel, actu.postId, actu.id)" style="cursor: pointer;">
+              <i class="far fa-times-circle"></i>
             </a>
           </div>
         </div>
 
         <div class="card-body p-0">
-            <img *ngIf="actu.img" [src]="actu.img" alt="" class="img-fluid img-actuality" id="dynamic" (click)="viewPicture($event)">
+            <img *ngIf="actu.img" [src]="actu.img" alt="" [ngClass]="(!actu.text)?'img-fluid img-actuality mb-2':'img-fluid img-actuality'" id="dynamic" (click)="viewPicture($event)">
             <p *ngIf="actu.text" class="card-text text-start my-3 mx-3">{{ actu.text }}</p>
         </div>
         <div class="card-body text-muted d-flex justify-content-evenly px-2 likebar">
@@ -38,22 +56,27 @@
                 {{ actu.dislike }}
             </button>
         </div>
-        <div *ngFor="let comment of actu.comments" class="card-body p-0 mb-2">
+        <div *ngFor="let comment of actu.comments" class="card-body p-0 mb-2 d-flex justify-content-between">
           <div class="d-flex align-items-center mx-4 my-1">
-            <img [src]="comment.img_profil" width="45" height="45" class="rounded-circle">
+            <img [src]="comment.img_profil" width="45" height="45" class="rounded-circle img-profil">
             <div class="ms-2 d-flex justify-content-center flex-column">
               <div class="d-flex flex-row">
                 <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}</p>
                 <p class="m-0 ms-1 text-start text-muted gp-date-com">• {{ comment.date }}</p>
               </div>
-              <p class="m-0 d-flex">{{ comment.msg }}</p>
+              <p class="m-0 d-flex text-start">{{ comment.msg }}</p>
             </div>
+          </div>
+          <div class="d-flex me-3 align-items-center" *ngIf="userDeleteCom(comment.userId) === true">
+            <a (click)="showDeleteCom(alertDel, actu.id, comment.id, comment.comId)" style="cursor: pointer;">
+              <i class="fas fa-times"></i>
+            </a>
           </div>
         </div>
         <form (submit)="addComment($event, actu.postId, actu.id)">
           <div class="card-footer text-muted d-flex justify-content-evenly px-3">
             <div class="d-flex align-items-center" style="width: 100%">
-                <img [src]="img_profil" width="45" height="45" class="rounded-circle">
+                <img [src]="img_profil" width="45" height="45" class="rounded-circle img-profil">
                 <input placeholder="Exprimez vous..." maxlength="255" class="gp-textarea shadow-sm rounded ms-2 d-flex">
             </div>
           </div>

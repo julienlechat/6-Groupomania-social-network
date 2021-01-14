@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { Actuality } from '../models/Actuality.model';
 import 'lg-zoom.js';
 import 'lg-share.js';
+import * as Bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-actuality',
@@ -18,6 +19,14 @@ export class ActualityComponent implements OnInit {
   actus: Actuality[] = [];
   lg: any;
   img_profil?: string;
+
+  alertId !: number;
+  alertTitle?: string;
+  alertContent?: string;
+  alertElementId!: number;
+  alertPostId!: number ;
+  alertComId !: number;
+  Modal : any;
 
   constructor(private Actuality: ActualityService, private auth: AuthService) { }
 
@@ -127,8 +136,78 @@ export class ActualityComponent implements OnInit {
       })
   }
 
-  deletePost(idpost?: number):void {
-    console.log('delete ' + idpost)
+  showDeletePost(element: any, postId: number, id:number):void {
+    this.Modal = new Bootstrap.Modal(element)
+
+    this.alertId = 1
+    this.alertTitle = "Supprimer un post"
+    this.alertContent = "Vous êtes sur le point de supprimer un post, êtes vous sûr ?"
+    this.alertElementId = id
+    this.alertPostId = postId
+
+    if (this.Modal) this.Modal.show()
+  }
+
+  showDeleteCom(element: any, postId: number, id:number, comId: number):void {
+    this.Modal = new Bootstrap.Modal(element)
+
+    this.alertId = 2;
+    this.alertTitle = "Supprimer un commentaire"
+    this.alertContent = "Vous êtes sur le point de supprimer un commentaire, êtes vous sûr ?"
+    this.alertElementId = id
+    this.alertPostId = postId
+    this.alertComId = comId
+
+    if (this.Modal) this.Modal.show()
+  }
+
+  delete():void {
+    // Supprimer un post
+    if (this.alertId === 1) {
+      this.Actuality.deletePost(this.alertPostId)
+      .then(
+        () => {
+          this.actus.splice(this.alertElementId, 1)
+        }
+      )
+      .catch(
+        (error) => {
+          console.log(error)
+        }
+      )
+    }
+
+    // Supprimer un commentaire
+    if (this.alertId === 2) {
+      this.Actuality.deleteCom(this.alertComId)
+      .then(
+        () => {
+
+          console.log(this.alertPostId)
+          const post = this.actus[this.alertPostId]?.comments
+          post?.splice(this.alertElementId, 1)
+
+          console.log(post)
+        }
+      )
+      .catch(
+        (error) => {
+          console.log(error)
+        }
+      )
+    }
+    
+    if (this.Modal) this.Modal.hide()
+  }
+
+  userDeleteCom(userId: number):Boolean {
+    if (this.auth.getUserRole() === 1) {
+      return true
+    } else if (this.auth.getUserId() === userId) {
+      return true
+    } else {
+      return false
+    }
   }
 
 

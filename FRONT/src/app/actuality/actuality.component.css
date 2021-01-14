@@ -9,6 +9,10 @@
   max-height: 500px;
   object-fit: cover;
 }
+
+.img-profil {
+  object-fit: cover;
+}
 .gp-like,
 .gp-dislike,
 .gp-liked,

@@ -1,5 +1,7 @@
 export class Comment {
-  userId?: number;
+  id!: number;
+  comId!: number;
+  userId!: number;
   lastname?: string;
   firstname?: string;
   img_profil?: string;

@@ -11,7 +11,8 @@ export class AuthService {
 
     isAuth$ = new BehaviorSubject<boolean>(false);
     private authToken?: string | null;
-    private userId?: string;
+    private userId?: number;
+    private userRole?: number;
     private img_profil?: string;
 
     constructor(private http: HttpClient,
@@ -38,6 +39,10 @@ export class AuthService {
         return this.userId;
     }
 
+    getUserRole() {
+        return this.userRole;
+    }
+
     getImgProfil() {
         return this.img_profil;
     }
@@ -45,10 +50,11 @@ export class AuthService {
     loginUser(email: string, password: string, rememberme: Boolean) {
         return new Promise<void>((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password}).subscribe(
-            (response: {userId?: string, img_profil?:string, token?: string}) => {
+            (response: {userId?: number, img_profil?:string, role?: number, token?: string}) => {
                 this.userId = response.userId;
                 this.img_profil = response.img_profil;
                 this.authToken = response.token;
+                this.userRole = response.role;
                 if (rememberme === true) localStorage.setItem('token', response.token!);
                 this.isAuth$.next(true);
                 resolve();
@@ -63,10 +69,11 @@ export class AuthService {
     isLogged(token: string | null) {
         return new Promise<void>((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/islogged', {token: token}).subscribe(
-            (response: {userId?: string, img_profil?:string}) => {
+            (response: {userId?: number, role?: number, img_profil?:string}) => {
                 this.userId = response.userId;
                 this.img_profil = response.img_profil;
                 this.authToken = localStorage.getItem('token');
+                this.userRole = response.role;
                 this.isAuth$.next(true);
                 resolve();
             },
