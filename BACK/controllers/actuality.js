@@ -1,395 +1,252 @@
 const mysql = require('mysql')
 const db = require('../mysql')
-const fn = require('../middleware/function')
 var moment = require('moment');
 const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-
-// Ajouter un post
-exports.post = (req, res, next) => {
-    //Réception des informations
-    const {post} = req.body
-    const token = req.headers.authorization.split(' ')[1]
-    
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
-
-    //Si check() ne retourne pas de chiffre, le token n'est pas valide
-    if (isNaN(userId)) return res.status(400).json({message: "Erreur: votre token n'est pas valide"})
-
-    // Préparation de la requete suivant les cas reçus
-    const sql = () => {
-        if (!post && req.file) {
-            const string = "INSERT INTO post (`user`, `date`, `img`) VALUES (?, ?, ?)";
-            return mysql.format(string, [userId, date, req.file.filename])
-        } else if (post && !req.file) {
-            const string = "INSERT INTO post (`user`, `date`, `text`) VALUES (?, ?, ?)";
-            return mysql.format(string, [userId, date, post])
-        } else {
-            const string = "INSERT INTO post (`user`, `date`, `img`, `text`) VALUES (?, ?, ?, ?)";
-            return mysql.format(string, [userId, date, req.file.filename, post])
-        }
-    }
-
-    // On envoie la requete SQL
-    db.query(sql(), (error, resolve) => {
-        if (!error) { res.status(201).json({ message: 'ok'})} 
-        else { res.status(400).json({error}) }
-    })
-}
-
-// Delete un post
-exports.deletePost = (req, res, next) => {
-    const { postId } = req.body
-    const token = req.headers.authorization.split(' ')[1]
-    
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
-
-    const reqString = `SELECT id, user FROM post WHERE id = ?`
-    const reqSQL = mysql.format(reqString, [postId])
-
-    db.query(reqSQL, (error, post) => {
-        if (error) res.status(500).json({error})
-
-        if (post[0].user === userId || userRole === 1) {
-            const delString = `DELETE FROM post WHERE id = ?`
-            const delSQL = mysql.format(delString, [postId])
-
-            db.query(delSQL, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(200).json({message: 'ok'})
-            })
-        }
-    })
-
-}
-
-// Delete un post
-exports.deleteCom = (req, res, next) => {
-    const { comId } = req.body
-    const token = req.headers.authorization.split(' ')[1]
-    
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
-
-    const reqString = `SELECT id, user FROM post_comment WHERE id = ?`
-    const reqSQL = mysql.format(reqString, [comId])
-
-    db.query(reqSQL, (error, post) => {
-        if (error) res.status(500).json({error})
-
-        if (post[0].user === userId || userRole === 1) {
-            const delString = `DELETE FROM post_comment WHERE id = ?`
-            const delSQL = mysql.format(delString, [comId])
-
-            db.query(delSQL, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(200).json({message: 'ok'})
-            })
-        }
-    })
-
-}
-
 // Charger la page d'actualité
-exports.getActus = (req,res,next) => {
+exports.getActus = async (req,res) => {
     const Actus = []
-    const token = req.headers.authorization.split(' ')[1]
-
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
+    const { userId, role } = req.token
 
     const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id
                 FROM post
                 join users on post.user = users.id
                 ORDER BY post.id DESC LIMIT 10`
 
-    db.query(sql, (error, post) => {
-        if (error) res.status(400).json({error})
+    try { // Essaye d'envoyer la requete SQL
+        const post = await db.query(sql)
+        if (post[0].length === 0) throw 'error with actus request'
 
-        for (i=0; i<post.length; i++) {
-            
-            const date = moment(post[i].date).locale("fr").format('Do MMMM YYYY à HH:mm')
+        // Boucle pour chaque post récupéré
+        for (i=0; i<post[0].length; i++) {
+            const date = moment(post[0][i].date).locale("fr").format('Do MMMM YYYY à HH:mm')
             const editable = () => {
-                if (post[i].user === userId || role === 1) return true
+                if (post[0][i].user === userId || role === 1) return true
                 return false
             }
-            
+
+            // On récupére les likes
+            const likeSQL = `SELECT (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = 1)) AS numberLike,
+                            (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = -1)) AS numberDislike,
+                            (SELECT statut FROM post_like WHERE (id_post = ? AND user = ?)) AS likedByUser`
+            const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, userId])
+            const postLike = await db.query(likeREQ)
+            if(postLike[0].length === 0) throw 'error request like receive'
+
+            // On récupére les commentaires
+            const comment = []
+            const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
+                                FROM post_comment
+                                join users on post_comment.user = users.id
+                                WHERE id_post = ?
+                                ORDER BY post_comment.id`
+            const commentREQ = mysql.format(commentSQL, [post[0][i].id])
+            const postComment = await db.query(commentREQ)
+
+            for (j=0; j < postComment[0].length; j++) {
+                const date = moment(postComment[0][j].date).locale("fr").calendar();
+                comment.push({
+                    id: j,
+                    comId: postComment[0][j].id,
+                    userId: postComment[0][j].user,
+                    lastname: postComment[0][j].lastname,
+                    firstname: postComment[0][j].firstname,
+                    img_profil: postComment[0][j].img_profil ? 'http://localhost:3000/images/profile/' + postComment[0][j].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    date: date,
+                    msg: postComment[0][j].msg
+                })
+            }
+
+            // On prepare le json retourné avec les réponses
             Actus.push({
                 id: i,
-                postId: post[i].id,
-                lastname: post[i].lastname,
-                firstname: post[i].firstname,
-                img_profil: post[i].img_profil ? 'http://localhost:3000/images/profile/' + post [i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                postId: post[0][i].id,
+                lastname: post[0][i].lastname,
+                firstname: post[0][i].firstname,
+                img_profil: post[0][i].img_profil ? 'http://localhost:3000/images/profile/' + post[0] [i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
                 date: date,
-                img: post[i].img ? 'http://localhost:3000/images/post/' + post[i].img : null,
-                text: post[i].text,
-                editable: editable()
+                img: post[0][i].img ? 'http://localhost:3000/images/post/' + post[0][i].img : null,
+                text: post[0][i].text,
+                editable: editable(),
+                like: postLike[0][0].numberLike,
+                dislike: postLike[0][0].numberDislike,
+                liked: postLike[0][0].likedByUser,
+                comments: comment
             })
         }
 
-        req.userid = userId;
-        req.actus = Actus;
-        next()
-        })
-}
-
-// Récupére les likes et les ajoutes dans le tableau réponse
-exports.getActusLike = (req, res, next) => {
-    const Actus = req.actus
-    var count = 0
-
-    for (i = 0; i<Actus.length; i++) {
-        const sql = `SELECT (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = 1)) AS numberLike,
-                    (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = -1)) AS numberDislike,
-                    (SELECT statut FROM post_like WHERE (id_post = ? AND user = ?)) AS likedByUser`
-
-        const reqsql = mysql.format(sql, [Actus[i].postId, Actus[i].postId, Actus[i].postId, req.userid])
-
-        db.query(reqsql, (error, post) => {
-            if (error) res.status(400).json({error})
-            // Ajoute les likes dans le tableau
-            Actus[count] = {...Actus[count],...{like: post[0].numberLike, dislike: post[0].numberDislike, liked: post[0].likedByUser}}
-
-            count += 1
-            if (count === Actus.length) {
-                req.actus = Actus;
-                next();
-            }
-        })
+        res.status(200).json(Actus)
+        
+    } catch(err) { // Récupére une erreur et l'envoie au client
+        return res.status(500).json({err})
     }
 }
 
-// Récupére les commentaires et les ajoutes dans le tableau réponse
-exports.getActusComment = (req, res, next) => {
-    const Actus = req.actus
-    var count = 0
+// Ajouter un post
+exports.post = async (req, res) => {
+    const { post } = req.body
+    const { userId } = req.token
 
-    for (i = 0; i<Actus.length; i++) {
-        const sql = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
-                    FROM post_comment
-                    join users on post_comment.user = users.id
-                    WHERE id_post = ?
-                    ORDER BY post_comment.id`
-        const reqsql = mysql.format(sql, [Actus[i].postId])
-
-        db.query(reqsql, (error, post) => {
-            const comment = []
-
-            if (error) res.status(400).json({error})
-
-            for (i=0; i < post.length; i++) {
-                const date = moment(post[i].date).locale("fr").calendar(); 
-
-                comment.push({
-                    id: i,
-                    comId: post[i].id,
-                    userId: post[i].user,
-                    lastname: post[i].lastname,
-                    firstname: post[i].firstname,
-                    img_profil: post[i].img_profil ? 'http://localhost:3000/images/profile/' + post[i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
-                    date: date,
-                    msg: post[i].msg
-                })
-            
-                if (i === post.length-1) Actus[count] = {...Actus[count],...{comments: comment}}
-            }
-
-
-            count += 1
-            if (count === Actus.length) res.status(200).json(Actus)
-        })
+    // Préparation de la requete suivant les cas reçus
+    const sql = () => {
+        if (!post && req.file) return mysql.format(`INSERT INTO post (user, date, img) VALUES (?, ?, ?)`, [userId, date, req.file.filename])
+        if (post && !req.file) return mysql.format(`INSERT INTO post (user, date, text) VALUES (?, ?, ?)`, [userId, date, post])
+        return mysql.format(`INSERT INTO post (user, date, img, text) VALUES (?, ?, ?, ?)`, [userId, date, req.file.filename, post])
     }
 
-    
+    try { // Essaye d'envoyer la requete SQL
+        await db.query(sql())
+        return res.status(201).json({message: 'ok'})
+    } catch(err) { // Récupére une erreur et l'envoie au client
+        return res.status(500).json({err})
+    }
+}
+
+// Delete un post
+exports.deletePost = async (req, res, next) => {
+    const { id } = req.params
+    const { userId, role } = req.token
+    const reqSQL = mysql.format(`SELECT id, user FROM post WHERE id = ?`, [id])
+    const delSQL = mysql.format(`DELETE FROM post WHERE id = ?`, [id])
+
+    try { // Essaye d'envoyer la requete SQL
+        const postExist = await db.query(reqSQL)
+        if (postExist[0].length === 0) throw 'post not found'
+        if (postExist[0][0].user === userId || role === 1) await db.query(delSQL)
+        return res.status(200).json({message: 'ok'})
+    } catch(err) { // Récupére une erreur et l'envoie au client
+        return res.status(500).json({err})
+    }
+}
+
+// Delete un post
+exports.deleteCom = async (req, res) => {
+    const { id } = req.params
+    const { userId, role } = req.token
+    const reqSQL = mysql.format(`SELECT id, user FROM post_comment WHERE id = ?`, [id])
+    const delSQL = mysql.format(`DELETE FROM post_comment WHERE id = ?`, [id])
+
+    try { // Essaye d'envoyer la requete SQL
+        const commentExist = await db.query(reqSQL)
+        if (commentExist[0].length === 0) throw 'comment not found'
+        if (commentExist[0][0].user === userId || role === 1) db.query(delSQL)
+        return res.status(200).json({message: 'ok'})
+    } catch(err) { // Récupére une erreur et l'envoie au client
+        return res.status(500).json({err})
+    }
 }
 
 // Ajoute un like sur un post
-exports.likePost = (req,res,next) => {
+exports.likePost = async (req, res) => {
     //Réception des informations
-    const {idPost} = req.body
-    const token = req.headers.authorization.split(' ')[1]
-    
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
+    const { idPost } = req.body
+    const { userId } = req.token
 
-    const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
-    const sql = mysql.format(string, [idPost, userId])
+    const reqSQL = mysql.format(`SELECT * FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
+    const insertSQL = mysql.format(`INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)`, [userId, 1, date, idPost])
+    const delSQL = mysql.format(`DELETE FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
+    const updateSQL = mysql.format(`UPDATE post_like SET statut=1 WHERE id_post = ? AND user = ?`, [idPost, userId])
 
-    db.query(sql, (error, post_like) => {
-        if(error) res.status(400).json({message: 'Erreur: erreur dans le post'})
+    try { // Essaye d'envoyer la requete SQL
+        const postLike = await db.query(reqSQL)
 
-        //s'il n'y a pas de like
-        if (post_like.length === 0) {
-            const string2 = "INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)"
-            const sql2 = mysql.format(string2, [userId, 1, date, idPost])
-
-            db.query(sql2, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: 1})
-            })
-
-        } else if (post_like.length > 0 && post_like[0].statut === 1) {
-            const reqdel = "DELETE FROM post_like WHERE id_post = ? AND user = ?"
-            const sqldel = mysql.format(reqdel, [idPost, userId])
-
-            db.query(sqldel, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: 0})
-            })
-        } else if (post_like.length > 0 && post_like[0].statut === -1) {
-            const reqedit = "UPDATE post_like SET statut=1 WHERE id_post = ? AND user = ?"
-            const sqldel = mysql.format(reqedit, [idPost, userId])
-
-            db.query(sqldel, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: -1})
-            })
+        if (postLike[0].length === 0) {
+            await db.query(insertSQL)
+            return res.status(201).json({statut: 1})
+        } else if (postLike[0][0].statut === 1) {
+            await db.query(delSQL)
+            return res.status(200).json({statut: 0})
+        } else if (postLike[0][0].statut === -1) {
+            await db.query(updateSQL)
+            return res.status(200).json({statut: -1})
+        } else {
+            throw 'error set like'
         }
-    })
+    } catch(err) { // Récupére une erreur et l'envoie au client
+    return res.status(500).json({err})
+    }
 }
 
-
-
-/*
-
-
-*/
-
 // Ajoute un dislike sur un post
-exports.dislikePost = (req,res,next) => {
+exports.dislikePost = async (req, res) => {
     //Réception des informations
-    const {idPost} = req.body
-    const token = req.headers.authorization.split(' ')[1]
+    const { idPost } = req.body
+    const { userId } = req.token
 
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
+    const reqSQL = mysql.format(`SELECT * FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
+    const insertSQL = mysql.format(`INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)`, [userId, -1, date, idPost])
+    const delSQL = mysql.format(`DELETE FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
+    const updateSQL = mysql.format(`UPDATE post_like SET statut=-1 WHERE id_post = ? AND user = ?`, [idPost, userId])
 
+    try { // Essaye d'envoyer la requete SQL
+        const postLike = await db.query(reqSQL)
 
-    const string = "SELECT * FROM post_like WHERE id_post = ? AND user = ?"
-    const sql = mysql.format(string, [idPost, userId])
-
-    db.query(sql, (error, post_like) => {
-        if(error) res.status(400).json({message: 'Erreur: erreur dans le post'})
-
-        //s'il n'y a pas de like
-        if (post_like.length === 0) {
-            const string2 = "INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)"
-            const sql2 = mysql.format(string2, [userId, -1, date, idPost])
-
-            db.query(sql2, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: -1})
-            })
-
-        } else if (post_like.length > 0 && post_like[0].statut === -1) {
-            const reqdel = "DELETE FROM post_like WHERE id_post = ? AND user = ?"
-            const sqldel = mysql.format(reqdel, [idPost, userId])
-
-            db.query(sqldel, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: 0})
-            })
-        } else if (post_like.length > 0 && post_like[0].statut === 1) {
-            const reqedit = "UPDATE post_like SET statut=-1 WHERE id_post = ? AND user = ?"
-            const sqldel = mysql.format(reqedit, [idPost, userId])
-
-            db.query(sqldel, (error) => {
-                if (error) res.status(400).json({error})
-                res.status(201).json({ statut: 1})
-            })
+        if (postLike[0].length === 0) {
+            await db.query(insertSQL)
+            return res.status(201).json({statut: -1})
+        } else if (postLike[0][0].statut === -1) {
+            await db.query(delSQL)
+            return res.status(200).json({statut: 0})
+        } else if (postLike[0][0].statut === 1) {
+            await db.query(updateSQL)
+            return res.status(200).json({statut: 1})
+        } else {
+            throw 'error set like'
         }
-    })
+    } catch(err) { // Récupére une erreur et l'envoie au client
+    return res.status(500).json({err})
+    }
 }
 
 // Vérifie si le post existe
-exports.checkPost = (req, res, next) => {
-    const idPost = req.body.idPost
+exports.checkPost = async (req, res, next) => {
+    const { idPost } = req.body
+    const reqSQL = mysql.format(`SELECT COUNT(*) FROM post WHERE id = ?`, [idPost])
 
-    const reqString = `SELECT COUNT(*) FROM post WHERE id = ?`
-    const reqSql = mysql.format(reqString, [idPost])
-
-    db.query(reqSql, (error, post) => {
-        if (error) res.status(400).json({error})
-        if (post.length !== 1) res.status(401).json({error})
+    try { // Essaye d'envoyer la requete SQL
+        await db.query(reqSQL)
         next();
-    })
-    
+
+    } catch(err) { // Récupére une erreur et l'envoie au client
+    return res.status(500).json({err})
+    }
 }
 
 // Ajoute un commentaire
-exports.addComment = (req, res, next) => {
+exports.addComment = async (req, res, next) => {
     const { idPost, msg } = req.body;
-    const token = req.headers.authorization.split(' ')[1]
+    const { userId } = req.token
 
-    try { 
-        var {userId, role} = fn.tokenView(token)
-    }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
-
-    if (isNaN(userId)) res.status(400).json({message: "Erreur: votre token n'est pas valide"})
-
-    const reqString = "INSERT INTO post_comment (`user`, `msg`, `date`, `id_post`) VALUES (?, ?, ?, ?)";
-    const sqlReq = mysql.format(reqString, [userId, msg, date, idPost])
-
-    db.query(sqlReq, (error) => {
-        if (error) res.status(400).json({error})
-
-        const resString = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
+    const insertREQ = mysql.format(`INSERT INTO post_comment (user, msg, date, id_post) VALUES (?, ?, ?, ?)`, [userId, msg, date, idPost])
+    const selectSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
                             FROM post_comment
                             join users on post_comment.user = users.id
                             WHERE id_post = ?
                             ORDER BY post_comment.id`
-        const resReq = mysql.format(resString, [idPost])
+    const selectREQ = mysql.format(selectSQL, [idPost])
 
-        db.query(resReq, (error, comment) => {
-            if (error) res.status(400).json({error})
+    try { // Essaye d'envoyer la requete SQL
+        await db.query(insertREQ)
 
-            const comments = []
+        const comments = []
+        const comment = await db.query(selectREQ)
+        if (comment[0].length === 0) throw 'error post not exist'
 
-            for (i=0; i<comment.length; i++) {
-                const date = moment(comment[i].date).locale("fr").calendar(); 
-
-                comments.push({
-                    id: i,
-                    comId: comment[i].id,
-                    userId: comment[i].user,
-                    lastname: comment[i].lastname,
-                    firstname: comment[i].firstname,
-                    img_profil: comment[i].img_profil ? 'http://localhost:3000/images/profile/' + comment[i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
-                    date: date,
-                    msg: comment[i].msg
-                })
-            }
-
-            res.status(201).json({comments: comments})
-        })
-    })
+        for (i=0; i<comment[0].length; i++) {
+            const date = moment(comment[0][i].date).locale("fr").calendar(); 
+            comments.push({
+                id: i,
+                comId: comment[0][i].id,
+                userId: comment[0][i].user,
+                lastname: comment[0][i].lastname,
+                firstname: comment[0][i].firstname,
+                img_profil: comment[0][i].img_profil ? 'http://localhost:3000/images/profile/' + comment[0][i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                date: date,
+                msg: comment[0][i].msg
+            })
+        }
+        res.status(201).json({comments: comments})
+    } catch(err) { // Récupére une erreur et l'envoie au client
+        return res.status(500).json({err})
+    }
 }

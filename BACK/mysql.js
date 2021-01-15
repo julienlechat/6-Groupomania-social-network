@@ -1,18 +1,17 @@
-const mysql = require('mysql');
+'use strict';
+
+const mysql = require('mysql2/promise');
 
 //BASE DE DONNEE
-var db = mysql.createConnection({
+const db = mysql.createPool({
+    connectionLimit: 100,
     host     : 'localhost',
     user     : 'root',
     password : 'test123',
-    database: 'groupomania'
-  });
-  db.connect(function(err) {
-
-    if (err) throw err;
- 
-    console.log("Connecté à la base de données MySQL!");
- 
+    waitForConnections: true,
+    database: 'groupomania',
+    charset: 'utf8mb4',
+    debug: false
   });
 
   module.exports = db;

@@ -23,34 +23,23 @@ export class SignupComponent implements OnInit {
 
   ngOnInit(): void {  }
 
-   onSubmit(): void {
-    const lastname = this.signupForm.get('lastname')?.value;
-    const firstname = this.signupForm.get('firstname')?.value;
-    const email = this.signupForm.get('email')?.value;
-    const password = this.signupForm.get('password')?.value;
-    const password2 = this.signupForm.get('password2')?.value;
+    onSubmit(): void {
+      const lastname = this.signupForm.get('lastname')?.value;
+      const firstname = this.signupForm.get('firstname')?.value;
+      const email = this.signupForm.get('email')?.value;
+      const password = this.signupForm.get('password')?.value;
+      const password2 = this.signupForm.get('password2')?.value;
 
-    if (password === password2) {
-
-      this.auth.createUser(email, password, lastname, firstname)
-      .then(
-        (success) => {
-          console.log(success);
-        })
-      .catch(
-        (error) => {
-          if (error.error.error.code && error.error.error.code === "ER_DUP_ENTRY") {this.errorMsg = "L'adresse email est déjà utilisé !"}
-          else if (error.error.error) {this.errorMsg = error.error.error}
-          else {this.errorMsg = error.message};
-          console.error(error);
-        }
-      )
-
-    } else {
-      this.errorMsg = "Mot de passe non identique";
+      if (password === password2) {
+        this.auth.createUser(email, password, lastname, firstname)
+          .then(
+            (success) => {
+              console.log(success);
+            })
+          .catch(
+            (error) => {
+              this.errorMsg = 'Error: ' + error.error.err;
+            })
+      }
     }
-
-   }
-
-
 }

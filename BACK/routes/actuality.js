@@ -2,14 +2,15 @@ const express = require('express')
 const route = express.Router()
 const actuCtrl = require('../controllers/actuality')
 
+const primary = require('../middleware/primary')
 const multer = require('../middleware/multer')
 
-route.post('/post', multer, actuCtrl.post)
-route.get('/actus', actuCtrl.getActus, actuCtrl.getActusLike, actuCtrl.getActusComment)
-route.post('/like', actuCtrl.likePost)
-route.post('/dislike', actuCtrl.dislikePost)
-route.post('/addComment', actuCtrl.checkPost, actuCtrl.addComment)
-route.post('/deletePost', actuCtrl.deletePost)
-route.post('/deleteCom', actuCtrl.deleteCom)
+route.post('/post', primary.tokenExport, multer, actuCtrl.post)
+route.get('/actus', primary.tokenExport, actuCtrl.getActus)
+route.post('/like', primary.tokenExport, actuCtrl.likePost)
+route.post('/dislike', primary.tokenExport, actuCtrl.dislikePost)
+route.post('/addComment', primary.tokenExport, actuCtrl.checkPost, actuCtrl.addComment)
+route.delete('/delete/post/:id', primary.tokenExport, actuCtrl.deletePost)
+route.delete('/delete/coment/:id', primary.tokenExport, actuCtrl.deleteCom)
 
 module.exports = route

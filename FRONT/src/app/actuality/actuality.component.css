@@ -17,6 +17,8 @@
 .gp-dislike,
 .gp-liked,
 .gp-disliked {
+  outline: none;
+  box-shadow: none;
   width: 160px;
   transition: 0.2s;
 }
@@ -62,4 +64,8 @@
   font-weight: 500;
   font-size: 15px;
   padding: 8px;
+}
+.fa-times-circle:hover,
+.fa-times:hover {
+  color: #dc3545 !important;
 }

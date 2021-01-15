@@ -21,82 +21,77 @@ nameValid
     .is().max(20)
     .has().not().digits()
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res) => {
     //RECUPERATION DES VALEURS ENVOYER PAR L'UTILISATEUR
     const { email, password, firstname, lastname } = req.body
+    const userSQL = mysql.format(`SELECT email FROM users WHERE email = ?`, [email])
 
-    if (!pwd.validate(password)) {
-        return res.status(400).json({error: "Votre mot de passe est trop simple !"})
-    } else if (!nameValid.validate(lastname)) {
-        return res.status(400).json({error: "Votre nom doit comprendre entre 3 et 20 caractères !"})
-    } else if (!nameValid.validate(firstname)) {
-        return res.status(400).json({error: "Votre prénom doit comprendre entre 3 et 20 caractères !"})
-    }
-     else if (email && pwd.validate(password) && nameValid.validate(firstname) && nameValid.validate(lastname)) {
+    try {
+        if (!email || !password || !firstname || !lastname) throw "Vous avez oublié des champs !"
+        if (!pwd.validate(password)) throw 'Votre mot de passe est trop simple !'
+        if (!nameValid.validate(lastname)) throw 'Votre nom doit comprendre entre 3 et 20 caractères !'
+        if (!nameValid.validate(firstname)) throw 'Votre prénom doit comprendre entre 3 et 20 caractères !'
+
+        const userExist = await db.query(userSQL)
+        if (userExist[0].length > 0) throw 'user exist'
+        
         bcrypt.hash(password, 10)
             .then(hash => {
-                const string = "INSERT INTO users (email, password, lastname, firstname) VALUES (?, ?, ?, ?)";
-                const insert = [email, hash, lastname, firstname];
-                const sql = mysql.format(string, insert);
-
-                db.query(sql, (error, user) => {
-                    if (!error) { res.status(201).json({ message: user})} 
-                    else { res.status(400).json({error}) }
-                })
+                const sql = mysql.format(`INSERT INTO users (email, password, lastname, firstname) VALUES (?, ?, ?, ?)`, [email, hash, lastname, firstname]);
+                db.query(sql)
+                return res.status(201).json({ message: 'ok'})
             })
             .catch(error => res.status(500).json({error}))
-    } else {
-        return res.status(500).json({error})
+    } catch (err) {
+        res.status(500).json({err})
     }
 }
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res) => {
     const { email, password } = req.body
-    if (!email || !password) return res.status(400).json({error: "Vous devez remplir les deux champs."})
+    const sql = mysql.format(`SELECT id, password, img_profil, role FROM users WHERE email = ?`, [email])
 
-    const string = "SELECT id, password, img_profil, role FROM users WHERE email = ?"
-    const sql = mysql.format(string, [email])
+    try {
+        if (!email || !password) throw 'Vous devez remplir les deux champs.'
+        const user = await db.query(sql);
+        if (user[0].length === 0) throw 'user not valid'
 
-    db.query(sql, (error, user) => {
-
-        if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
-
-        bcrypt.compare(password, user[0].password)
+        bcrypt.compare(password, user[0][0].password)
             .then(valid => {
-                if (!valid) return res.status(500).json({error: "Mot de passe invalide !"})
+                if (!valid) throw 'invalid password'
                 res.status(200).json({
-                    userId: user[0].id,
-                    img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
-                    role: user[0].role,
+                    userId: user[0][0].id,
+                    img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    role: user[0][0].role,
                     token: jwt.sign(
-                        {userId: user[0].id,
-                        role: user[0].role},
+                        {userId: user[0][0].id,
+                        role: user[0][0].role},
                         'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0',
                         {expiresIn: '24h'}
                     )
                 })
             })
-            .catch(error => res.status(501).json({error}))
-    })
+            .catch(error => res.status(500).json({error}))
+    } catch (err) {
+        res.status(500).json({err})
+    }
 }
 
-exports.isLogged = (req, res, next) => {
-    const { token } = req.body
 
-    //Check l'utilisateur et récupére son id
-    try { 
-        var {userId, role} = fn.tokenView(token)
+exports.isLogged = async (req, res, next) => {
+    const { userId } = req.token
+    const sql = mysql.format(`SELECT id, img_profil, role FROM users WHERE id = ?`, [userId])
+
+    try {
+        const user = await db.query(sql)
+        if (user[0].length === 0) throw 'user not valid'
+
+        return res.status(200).json({
+            userId: user[0][0].id,
+            img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+            role: user[0][0].role
+        })
+    } catch (err) {
+        res.status(500).json({err})
     }
-    catch(err) {
-        return res.status(400).json({message: err})
-    }
-
-    const string = "SELECT id, img_profil, role FROM users WHERE id = ?"
-    const sql = mysql.format(string, [userId])
-
-    db.query(sql, (error, user) => {
-        if (user.length === 0) return res.status(400).json({error : "Identifiant non valide."})
-        if (!error) return res.status(200).json({userId: user[0].id, img_profil: user[0].img_profil ? 'http://localhost:3000/images/profile/' + user[0].img_profil : 'http://localhost:3000/images/profile/noprofile.png', role: user[0].role})
-    })
-
 }

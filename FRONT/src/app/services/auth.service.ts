@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -18,6 +18,19 @@ export class AuthService {
     constructor(private http: HttpClient,
                 private router: Router) {}
 
+    getToken() {
+        return this.authToken;
+    }
+    getUserId() {
+        return this.userId;
+    }
+    getUserRole() {
+        return this.userRole;
+    }
+    getImgProfil() {
+        return this.img_profil;
+    }
+
     createUser(email: string, password: string, lastname: string, firstname: string) {
         return new Promise((resolve, reject) => {
           this.http.post('http://localhost:3000/api/auth/signup', {email: email, password: password, lastname: lastname, firstname:firstname}).subscribe(
@@ -25,26 +38,11 @@ export class AuthService {
                 resolve(response);
             },
             (error) => {
+                console.log(error)
                 reject(error);
             }
             );
         });
-    }
-
-    getToken() {
-        return this.authToken;
-    }
-    
-    getUserId() {
-        return this.userId;
-    }
-
-    getUserRole() {
-        return this.userRole;
-    }
-
-    getImgProfil() {
-        return this.img_profil;
     }
 
     loginUser(email: string, password: string, rememberme: Boolean) {
@@ -67,8 +65,11 @@ export class AuthService {
     }
 
     isLogged(token: string | null) {
-        return new Promise<void>((resolve, reject) => {
-          this.http.post('http://localhost:3000/api/auth/islogged', {token: token}).subscribe(
+        return new Promise((resolve, reject) => {
+            let headers = new HttpHeaders()
+                .set('Authorization', 'Bearer lol' + localStorage.getItem('token'))
+
+          this.http.post('http://localhost:3000/api/auth/islogged',  null).subscribe(
             (response: {userId?: number, role?: number, img_profil?:string}) => {
                 this.userId = response.userId;
                 this.img_profil = response.img_profil;

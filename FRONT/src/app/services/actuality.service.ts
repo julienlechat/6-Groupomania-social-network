@@ -84,14 +84,11 @@ export class ActualityService {
 
   deletePost(idPost: number) {
     return new Promise((resolve, reject) => {
-      this.http.post(
-        'http://localhost:3000/api/actuality/deletePost',
-        {
-          postId: idPost
-        })
+      this.http.delete(
+        'http://localhost:3000/api/actuality/delete/post/' + idPost)
         .subscribe(
-          (response: { statut?: number }) => {
-            resolve(response);
+          (res: { message?: string }) => {
+            resolve(res);
           },
           (error) => {
             reject(error);
@@ -102,14 +99,11 @@ export class ActualityService {
 
   deleteCom(idCom: number) {
     return new Promise((resolve, reject) => {
-      this.http.post(
-        'http://localhost:3000/api/actuality/deleteCom',
-        {
-          comId: idCom
-        })
+      this.http.delete(
+        'http://localhost:3000/api/actuality/delete/coment/' + idCom)
         .subscribe(
-          (response: { statut?: number }) => {
-            resolve(response);
+          (res: { message?: string }) => {
+            resolve(res);
           },
           (error) => {
             reject(error);

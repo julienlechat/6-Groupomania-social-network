@@ -145,7 +145,7 @@ export class ActualityComponent implements OnInit {
     this.alertElementId = id
     this.alertPostId = postId
 
-    if (this.Modal) this.Modal.show()
+    this.Modal.show()
   }
 
   showDeleteCom(element: any, postId: number, id:number, comId: number):void {
@@ -158,7 +158,7 @@ export class ActualityComponent implements OnInit {
     this.alertPostId = postId
     this.alertComId = comId
 
-    if (this.Modal) this.Modal.show()
+    this.Modal.show()
   }
 
   delete():void {
@@ -168,6 +168,9 @@ export class ActualityComponent implements OnInit {
       .then(
         () => {
           this.actus.splice(this.alertElementId, 1)
+          for (let i=0; i<this.actus.length; i++) {
+            this.actus[i].id = i
+          }
         }
       )
       .catch(
@@ -182,12 +185,14 @@ export class ActualityComponent implements OnInit {
       this.Actuality.deleteCom(this.alertComId)
       .then(
         () => {
+          var comment = this.actus[this.alertPostId].comments
+          comment?.splice(this.alertElementId, 1)
 
-          console.log(this.alertPostId)
-          const post = this.actus[this.alertPostId]?.comments
-          post?.splice(this.alertElementId, 1)
-
-          console.log(post)
+          if (comment) {
+            for (let i=0; i<comment.length; i++) {
+              comment[i].id = i
+            }
+          }
         }
       )
       .catch(
@@ -201,13 +206,8 @@ export class ActualityComponent implements OnInit {
   }
 
   userDeleteCom(userId: number):Boolean {
-    if (this.auth.getUserRole() === 1) {
-      return true
-    } else if (this.auth.getUserId() === userId) {
-      return true
-    } else {
-      return false
-    }
+    if (this.auth.getUserRole() === 1 || this.auth.getUserId() === userId) return true
+    return false
   }
 
 

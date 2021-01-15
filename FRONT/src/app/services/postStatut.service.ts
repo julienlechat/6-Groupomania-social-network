@@ -9,52 +9,31 @@ export class PostStatut {
 
     constructor(private http: HttpClient) {}
 
-    post(post: string, image: string | File) {
-
+    post(post: string, image: File) {
         return new Promise((resolve, reject) => {
-
-            if (post === 'none' && image === 'none') return;
+            console.log(post, image)
+            if (post === null && image === null) return reject('Votre publication est vide');
 
             const formData = new FormData();
 
-            if (post !== 'none' && image === 'none') {
-                console.log("pas d'image mais 1 post")
+            if (post && !image) {
                 formData.append('post', post);
-                this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(
-                    (response: { message?: string }) => {
-                        resolve(response);
-                    },
-                    (error) => {
-                        reject(error);
-                    }
-                );
-            } else if (post === 'none' && image !== 'none') {
-                console.log("pas de post mais une image")
+            } else if (!post && image) {
                 formData.append('image', image);
-                this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(
-                    (response: { message?: string }) => {
-                        resolve(response);
-                    },
-                    (error) => {
-                        reject(error);
-                    }
-                );
-
             } else {
-                console.log("un post + 1 image")
                 formData.append('post', post);
                 formData.append('image', image);
-
-                this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(
-                    (response: { message?: string }) => {
-                        resolve(response);
-                    },
-                    (error) => {
-                        reject(error);
-                    }
-                );
             }
 
+            this.http.post('http://localhost:3000/api/actuality/post', formData).subscribe(
+                    (res: { message?: string }) => {
+                        resolve(res);
+                    },
+                    (error) => {
+                        console.log(error)
+                        reject(error.error.err);
+                    }
+                );
         });
 
     }

@@ -53,18 +53,8 @@ export class FileUploadComponent implements OnInit {
 
   // Submit Form
   submit(): void {
-    let statut = this.uploadForm.get('statut')?.value;
-    const user = localStorage.getItem('token') as string;
-    let img = this.uploadForm.get('imgPost')?.value;
-
-
-    if (img === null) img = 'none';
-    if (statut === null || statut === '') statut = 'none';
-
-    if (statut === 'none' && img === 'none') {
-      this.errorMsg = "Votre publication est vide !";
-      return
-    }
+    var statut = this.uploadForm.get('statut')?.value;
+    var img = this.uploadForm.get('imgPost')?.value;
     
     // Envoie le statut et l'image au serveur
     this.postStatut.post(statut, img).then(
@@ -78,13 +68,8 @@ export class FileUploadComponent implements OnInit {
     )
     .catch(
       (error) => {
-        if (error.status === 400) {
-          this.errorMsg = error.error.message;
-        } else {
-          this.errorMsg = error.message;
+          this.errorMsg = error;
         }
-        
-      }
     );
 
 
