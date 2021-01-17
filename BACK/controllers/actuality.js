@@ -1,5 +1,6 @@
 const mysql = require('mysql')
 const db = require('../mysql')
+const fs = require('fs')
 var moment = require('moment');
 const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
@@ -60,6 +61,7 @@ exports.getActus = async (req,res) => {
             // On prepare le json retourné avec les réponses
             Actus.push({
                 id: i,
+                userid: post[0][i].user,
                 postId: post[0][i].id,
                 lastname: post[0][i].lastname,
                 firstname: post[0][i].firstname,
@@ -106,13 +108,19 @@ exports.post = async (req, res) => {
 exports.deletePost = async (req, res, next) => {
     const { id } = req.params
     const { userId, role } = req.token
-    const reqSQL = mysql.format(`SELECT id, user FROM post WHERE id = ?`, [id])
+    const reqSQL = mysql.format(`SELECT id, user, img FROM post WHERE id = ?`, [id])
     const delSQL = mysql.format(`DELETE FROM post WHERE id = ?`, [id])
 
     try { // Essaye d'envoyer la requete SQL
         const postExist = await db.query(reqSQL)
         if (postExist[0].length === 0) throw 'post not found'
-        if (postExist[0][0].user === userId || role === 1) await db.query(delSQL)
+
+        if (postExist[0][0].user === userId || role === 1) {
+            await db.query(delSQL)
+            if (postExist[0][0].img) fs.unlink('images/post/' + postExist[0][0].img, (err) => {
+                if (err) res.status(500).json({err: 'error while deleting image'})
+            })
+        }
         return res.status(200).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
         return res.status(500).json({err})

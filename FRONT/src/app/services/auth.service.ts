@@ -47,13 +47,13 @@ export class AuthService {
 
     loginUser(email: string, password: string, rememberme: Boolean) {
         return new Promise<void>((resolve, reject) => {
-          this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password}).subscribe(
+          this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password, remember: rememberme}).subscribe(
             (response: {userId?: number, img_profil?:string, role?: number, token?: string}) => {
                 this.userId = response.userId;
                 this.img_profil = response.img_profil;
                 this.authToken = response.token;
                 this.userRole = response.role;
-                if (rememberme === true) localStorage.setItem('token', response.token!);
+                localStorage.setItem('token', response.token!);
                 this.isAuth$.next(true);
                 resolve();
             },
@@ -64,12 +64,9 @@ export class AuthService {
         });
     }
 
-    isLogged(token: string | null) {
-        return new Promise((resolve, reject) => {
-            let headers = new HttpHeaders()
-                .set('Authorization', 'Bearer lol' + localStorage.getItem('token'))
-
-          this.http.post('http://localhost:3000/api/auth/islogged',  null).subscribe(
+    isLogged() {
+        return new Promise<void>((resolve, reject) => {
+          this.http.post('http://localhost:3000/api/auth/islogged', null).subscribe(
             (response: {userId?: number, role?: number, img_profil?:string}) => {
                 this.userId = response.userId;
                 this.img_profil = response.img_profil;

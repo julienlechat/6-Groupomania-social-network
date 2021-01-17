@@ -12,6 +12,7 @@ export class Comment {
 export class Actuality {
     id!: number;
     postId!: number;
+    userid!: number;
     lastname?: string;
     firstname?: string;
     img_profil?: string;

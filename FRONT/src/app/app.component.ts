@@ -15,17 +15,15 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
 
     if (localStorage.getItem('token')) {
-      this.auth.isLogged(localStorage.getItem('token'))
-      .then(
-        () => {
-          this.router.navigate(['/accueil'])
+      this.auth.isLogged()
+        .then(
+          () => {
+            this.router.navigate(['/accueil'])
+          })
+        .catch(
+          (error) => {
+            localStorage.removeItem('token');
         })
-      .catch(
-        (error) => {
-          localStorage.removeItem('token');
-        }
-      )
     }
   }
-
 }

@@ -1,9 +1,6 @@
 <nav class="navbar navbar-expand navbar-dark primary-color">
-    <div class="container">
-    <a class="navbar-brand" *ngIf="!isAuth" routerLink="login">
-        <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
-    </a>
-    <a class="navbar-brand" *ngIf="isAuth" routerLink="accueil">
+  <div class="container">
+    <a class="navbar-brand" [routerLink]="homePage()">
         <img src="../../assets/images/logos/icon-left-font-monochrome-white.svg" alt="" width="150" height="35">
     </a>
       <div class="d-grid gap-2 d-flex justify-content-end" *ngIf="!isAuth">
@@ -17,12 +14,12 @@
         <a class="nav-link-gp waves-effect waves-light me-2">
           <i class="nav-ico fas fa-sitemap"></i>
         </a>
-        <a class="nav-link-gp me-2">
+        <a class="nav-link-gp me-2" [routerLink]="viewProfil()">
           <img [src]="img_profil" class="img-profil">
         </a>
         <a class="nav-link-gp waves-effect waves-light me-2" (click)="onLogout()">
           <i class="nav-ico fas fa-sign-out-alt"></i>
         </a>
       </ul>
-    </div>
-  </nav>
+  </div>
+</nav>

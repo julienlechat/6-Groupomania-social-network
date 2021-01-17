@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { PostStatut } from '../services/postStatut.service';
-import { AuthService } from '../services/auth.service';
+import { PostStatut } from '../../services/postStatut.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-file-upload',
-  templateUrl: './file-upload.component.html',
-  styleUrls: ['./file-upload.component.css']
+  selector: 'publish',
+  templateUrl: './publish.component.html',
+  styleUrls: ['./publish.component.css']
 })
 
-export class FileUploadComponent implements OnInit {
+export class publishComponent implements OnInit {
 
   errorMsg?: string;
   imageURL?: string;

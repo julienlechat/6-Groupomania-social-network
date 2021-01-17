@@ -112,5 +112,14 @@ export class ActualityService {
     });
   }
 
+  linkProfile(id: number) {
+    return ['/profile/' + id]
+  }
+
+  userDeleteCom(userId: number):Boolean {
+    if (this.auth.getUserRole() === 1 || this.auth.getUserId() === userId) return true
+    return false
+  }
+
 
 }

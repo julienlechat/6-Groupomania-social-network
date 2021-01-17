@@ -1,3 +1,17 @@
+.profil-img {
+  object-fit: cover;
+  height: 150px;
+  max-width: 150px;
+  border: white solid 2px;
+}
+.img-couverture {
+  object-fit: cover;
+  height: 300px;
+  width: 100%;
+}
+.profile {
+  margin-top: -75px;
+}
 .gp-date {
   font-size: 12px;
 }

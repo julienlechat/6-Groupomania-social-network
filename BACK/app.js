@@ -6,6 +6,7 @@ const path = require('path')
 // ROUTE
 const usersRoute = require('./routes/users')
 const actualityRoute = require('./routes/actuality')
+const profileRoute = require('./routes/profile')
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
@@ -24,6 +25,7 @@ app.use('/images/profile', express.static(path.join(__dirname, 'images/profile')
 
 app.use('/api/auth', usersRoute)
 app.use('/api/actuality', actualityRoute)
+app.use('/api/profile', profileRoute)
 
 // EXPORT LE CONTENU
 module.exports = app;

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-header',
@@ -11,25 +12,43 @@ export class HeaderComponent implements OnInit {
 
   isAuth!: boolean;
   authSubscription!: Subscription;
+  id_profil?: number;
   img_profil?: string;
 
-  constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService, public router:Router) { }
 
   ngOnInit(): void { 
     this.authSubscription = this.auth.isAuth$.subscribe(
       (auth) => {
         this.isAuth = auth;
+        this.id_profil = this.auth.getUserId();
         this.img_profil = this.auth.getImgProfil();
       }
     );
-}
+  }
 
-onLogout() {
-  this.auth.logout();
-}
+  homePage() {
+    if (this.isAuth) {
+      return ['accueil']
+    } else {
+      return ['login']
+    }
+  }
 
-ngOnDestroy() {
-  this.authSubscription.unsubscribe();
-}
+  viewProfil() {
+    if (this.id_profil) {
+      return ['profile/' + this.id_profil]
+    } else {
+      return ['/']
+    }
+  }
+
+  onLogout() {
+    this.auth.logout();
+  }
+
+  ngOnDestroy() {
+    this.authSubscription.unsubscribe();
+  }
 
 }

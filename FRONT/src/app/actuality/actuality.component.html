@@ -1,5 +1,5 @@
 <div class="container">
-    <app-file-upload></app-file-upload>
+    <publish></publish>
 
     <p *ngIf="actus!.length === 0" class="text-center">
       Votre fil d'actualité est vide.
@@ -17,7 +17,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-            <button type="button" class="btn btn-danger" (click)="delete()">SUPPRIMER</button>
+            <button type="button" class="btn btn-danger" (click)="delete()">Supprimer</button>
           </div>
         </div>
       </div>
@@ -30,7 +30,11 @@
           <div class="d-flex align-items-center">
             <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle img-profil">
             <div class="ms-2 align-items-left">
-              <p class="m-0 fw-bold text-start">{{ actu.firstname }} {{ actu.lastname }}</p>
+              <a class="link-profile" [routerLink]='linkProfile(actu.userid)'>
+                <p class="m-0 fw-bold text-start">
+                  {{ actu.firstname }} {{ actu.lastname }}
+                </p>
+              </a>
               <p class="m-0 text-start text-muted gp-date">Publié le {{ actu.date }}</p>
             </div>
           </div>
@@ -61,7 +65,9 @@
             <img [src]="comment.img_profil" width="45" height="45" class="rounded-circle img-profil">
             <div class="ms-2 d-flex justify-content-center flex-column">
               <div class="d-flex flex-row">
-                <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}</p>
+                <a class="link-profile" [routerLink]='linkProfile(comment.userId)'>
+                  <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}</p>
+                </a>
                 <p class="m-0 ms-1 text-start text-muted gp-date-com">• {{ comment.date }}</p>
               </div>
               <p class="m-0 d-flex text-start">{{ comment.msg }}</p>

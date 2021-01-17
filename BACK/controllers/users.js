@@ -48,7 +48,7 @@ exports.signup = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body
+    const { email, password, remember } = req.body
     const sql = mysql.format(`SELECT id, password, img_profil, role FROM users WHERE email = ?`, [email])
 
     try {
@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
                         {userId: user[0][0].id,
                         role: user[0][0].role},
                         'W0TFH87VH8NgAINL-EQrXbaBZ-A0i2lrnENcv6zzqsz70QnJ2vQOfif3RaUp2Py9lBRpVTsmnkGuawKGHJ6dbLSvIqoAJKo2V2X4oACal0',
-                        {expiresIn: '24h'}
+                        {expiresIn: (remember === true ? '24h' : 30)}
                     )
                 })
             })

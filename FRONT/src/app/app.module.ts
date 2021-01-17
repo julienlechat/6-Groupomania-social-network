@@ -11,7 +11,8 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { ActualityComponent } from './actuality/actuality.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FileUploadComponent } from './file-upload/file-upload.component';
+import { publishComponent } from './actuality/publish/publish.component';
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
     LoginComponent,
     SignupComponent,
     ActualityComponent,
-    FileUploadComponent
+    publishComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

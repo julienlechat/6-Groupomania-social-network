@@ -58,6 +58,14 @@ export class ActualityComponent implements OnInit {
     });
   }
 
+  linkProfile(id: number) {
+    return this.Actuality.linkProfile(id)
+  }
+
+  userDeleteCom(userId: number):Boolean {
+    return this.Actuality.userDeleteCom(userId);
+  }
+
   likePost(idpost: number): void {
     this.Actuality.likePost(idpost)
       .then(
@@ -204,11 +212,5 @@ export class ActualityComponent implements OnInit {
     
     if (this.Modal) this.Modal.hide()
   }
-
-  userDeleteCom(userId: number):Boolean {
-    if (this.auth.getUserRole() === 1 || this.auth.getUserId() === userId) return true
-    return false
-  }
-
 
 }
