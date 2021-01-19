@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
+import { User } from '../models/User.model';
 
 @Injectable({
     providedIn: 'root'
@@ -9,11 +10,15 @@ import { Router } from '@angular/router';
 
 export class AuthService {
 
+
     isAuth$ = new BehaviorSubject<boolean>(false);
     private authToken?: string | null;
+    
+    private userInfo: User = new User;
     private userId?: number;
     private userRole?: number;
     private img_profil?: string;
+
 
     constructor(private http: HttpClient,
                 private router: Router) {}
@@ -21,14 +26,8 @@ export class AuthService {
     getToken() {
         return this.authToken;
     }
-    getUserId() {
-        return this.userId;
-    }
-    getUserRole() {
-        return this.userRole;
-    }
-    getImgProfil() {
-        return this.img_profil;
+    getUser() {
+        return this.userInfo;
     }
 
     createUser(email: string, password: string, lastname: string, firstname: string) {
@@ -47,12 +46,10 @@ export class AuthService {
 
     loginUser(email: string, password: string, rememberme: Boolean) {
         return new Promise<void>((resolve, reject) => {
-          this.http.post('http://localhost:3000/api/auth/login', {email: email, password: password, remember: rememberme}).subscribe(
-            (response: {userId?: number, img_profil?:string, role?: number, token?: string}) => {
-                this.userId = response.userId;
-                this.img_profil = response.img_profil;
+          this.http.post<any>('http://localhost:3000/api/auth/login', {email: email, password: password, remember: rememberme}).subscribe(
+            (response: {userinfo: any, token: string}) => {
+                this.userInfo = response.userinfo;
                 this.authToken = response.token;
-                this.userRole = response.role;
                 localStorage.setItem('token', response.token!);
                 this.isAuth$.next(true);
                 resolve();
@@ -66,17 +63,15 @@ export class AuthService {
 
     isLogged() {
         return new Promise<void>((resolve, reject) => {
-          this.http.post('http://localhost:3000/api/auth/islogged', null).subscribe(
-            (response: {userId?: number, role?: number, img_profil?:string}) => {
-                this.userId = response.userId;
-                this.img_profil = response.img_profil;
+          this.http.post<any>('http://localhost:3000/api/auth/islogged', null).subscribe(
+            (userinfo) => {
+                this.userInfo = userinfo;
                 this.authToken = localStorage.getItem('token');
-                this.userRole = response.role;
                 this.isAuth$.next(true);
                 resolve();
             },
-            (error) => {
-                reject(error);
+            () => {
+                reject(this.logout());
             }
             );
         });
@@ -84,7 +79,7 @@ export class AuthService {
 
     logout() {
         this.authToken = null!;
-        this.userId = null!;
+        this.userInfo = null!;
         localStorage.removeItem('token');
         this.isAuth$.next(false);
         this.router.navigate(['login']);

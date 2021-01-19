@@ -12,7 +12,7 @@ export class HeaderComponent implements OnInit {
 
   isAuth!: boolean;
   authSubscription!: Subscription;
-  id_profil?: number;
+  id_profil!: number;
   img_profil?: string;
 
   constructor(private auth: AuthService, public router:Router) { }
@@ -21,8 +21,10 @@ export class HeaderComponent implements OnInit {
     this.authSubscription = this.auth.isAuth$.subscribe(
       (auth) => {
         this.isAuth = auth;
-        this.id_profil = this.auth.getUserId();
-        this.img_profil = this.auth.getImgProfil();
+        if (this.auth.getUser()) {
+          this.id_profil = this.auth.getUser().userid;
+          this.img_profil = this.auth.getUser().img_profil;
+        }
       }
     );
   }

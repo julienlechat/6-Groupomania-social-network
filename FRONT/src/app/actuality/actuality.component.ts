@@ -32,7 +32,7 @@ export class ActualityComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.img_profil = this.auth.getImgProfil();
+    this.img_profil = this.auth.getUser().img_profil;
     this.actualitySub = this.Actuality.Actuality$.subscribe(
       (actus) => {
         console.log(actus)
@@ -56,6 +56,12 @@ export class ActualityComponent implements OnInit {
         src: event.srcElement.src
       }]
     });
+  }
+  
+  ngOnDestroy(): void {
+    if (this.actualitySub) {
+      this.actualitySub.unsubscribe();
+    }
   }
 
   linkProfile(id: number) {

@@ -117,7 +117,7 @@ export class ActualityService {
   }
 
   userDeleteCom(userId: number):Boolean {
-    if (this.auth.getUserRole() === 1 || this.auth.getUserId() === userId) return true
+    if (this.auth.getUser().role === 1 || this.auth.getUser().userid === userId) return true
     return false
   }
 

@@ -49,20 +49,27 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
     const { email, password, remember } = req.body
-    const sql = mysql.format(`SELECT id, password, img_profil, role FROM users WHERE email = ?`, [email])
+    const sql = mysql.format(`SELECT id, password, lastname, firstname, img_profil, description, role FROM users WHERE email = ?`, [email])
 
     try {
         if (!email || !password) throw 'Vous devez remplir les deux champs.'
         const user = await db.query(sql);
         if (user[0].length === 0) throw 'user not valid'
 
+        const info = {
+            userid: user[0][0].id,
+            lastname: user[0][0].lastname,
+            firstname: user[0][0].firstname,
+            img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+            description: user[0][0].description,
+            role: user[0][0].role
+        }
+
         bcrypt.compare(password, user[0][0].password)
             .then(valid => {
                 if (!valid) throw 'invalid password'
                 res.status(200).json({
-                    userId: user[0][0].id,
-                    img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
-                    role: user[0][0].role,
+                    userinfo: info,
                     token: jwt.sign(
                         {userId: user[0][0].id,
                         role: user[0][0].role},
@@ -80,17 +87,22 @@ exports.login = async (req, res) => {
 
 exports.isLogged = async (req, res, next) => {
     const { userId } = req.token
-    const sql = mysql.format(`SELECT id, img_profil, role FROM users WHERE id = ?`, [userId])
+    const sql = mysql.format(`SELECT id, lastname, firstname, img_profil, description, role FROM users WHERE id = ?`, [userId])
 
     try {
         const user = await db.query(sql)
         if (user[0].length === 0) throw 'user not valid'
 
-        return res.status(200).json({
-            userId: user[0][0].id,
+        const info = {
+            userid: user[0][0].id,
+            lastname: user[0][0].lastname,
+            firstname: user[0][0].firstname,
             img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+            description: user[0][0].description,
             role: user[0][0].role
-        })
+        }
+
+        return res.status(200).json(info)
     } catch (err) {
         res.status(500).json({err})
     }

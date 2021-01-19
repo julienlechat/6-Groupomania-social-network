@@ -36,14 +36,13 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(
       (params) => {
-        this.img_profil = this.auth.getImgProfil();
+        this.img_profil = this.auth.getUser().img_profil;
         var id: number = +params.id;
         this.profileId = id
         this.profileSub = this.profile.Profile$.subscribe(
           (user) => {
             this.user = user
             this.editable()
-            console.log(this.user)
           },
           (error) => {
             console.log(error);
@@ -53,11 +52,15 @@ export class ProfileComponent implements OnInit {
     )
   }
   
+  ngOnDestroy(): void {
+    if (this.profileSub) {
+      this.profileSub.unsubscribe();
+    }
+  }
+  
   editable() {
-    console.log(this.auth.getUserId())
     if (this.user[0].post) {
-      if (this.auth.getUserRole() === 1 || this.auth.getUserId() === this.profileId){
-        console.log('oui')
+      if (this.auth.getUser().role === 1 || this.auth.getUser().userid === this.profileId){
         this.user[0].editable = true;
       } else {
         this.user[0].editable = false;

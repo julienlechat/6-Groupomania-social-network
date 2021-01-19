@@ -1,0 +1,71 @@
+<div class="container mt-5" *ngIf="user">
+  <div class="row">
+      <div class="col-lg-4 pb-5">
+          <!-- Account Sidebar-->
+          <div class="author-card pb-3">
+              <div class="author-card-profile pt-3">
+                  <div class="author-card-avatar">
+                    <img [src]="user.img_profil" class="author-card-avatar">
+                  </div>
+                  <div class="author-card-details">
+                      <h5 class="author-card-name text-lg">{{ user.firstname + ' ' + user.lastname }}</h5><span class="author-card-position">{{ user.description }}</span>
+                  </div>
+              </div>
+          </div>
+          <div class="wizard">
+              <nav class="list-group list-group-flush">
+                  <a class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-center">
+                          <div><i class="fe-icon-shopping-bag mr-1 text-muted"></i>
+                              <div class="d-inline-block font-weight-medium text-uppercase" type="button" onclick="document.getElementById('getFile').click()">Changer ma photo</div>
+                          </div>
+                      </div>
+                  </a>
+              </nav>
+          </div>
+      </div>
+      <!-- Profile Settings-->
+      <div class="col-lg-8 pb-5">
+          <form class="row" [formGroup]="uploadForm" (ngSubmit)="submit()">
+            <input #imageInput type='file' accept="image/*" id="getFile" style="display:none" (change)="showPreview($event)" />
+
+            <div class="col-12 d-flex flex-column justify-content-center flex-fill" *ngIf="imageURL && imageURL !== ''">
+              <!-- IMAGE PREVIEW  -->
+              <p class="fw-bold text-center">Aperçu de votre nouvelle image:</p>
+              <div class="imagePreview mb-3 d-flex justify-content-center">
+                <img [src]="imageURL" id="previewImg" class="img-fluid author-card-avatar shadow rounded-circle" style="height: 200px; width:200px;">
+              </div>
+              <hr class="mt-2 mb-3">
+            </div>
+              <div class="col-12">
+                <p class="fw-bold">Changer votre description:</p>
+                <label for="account-fn">Ma description</label>
+                <input class="form-control mb-3" type="text" id="account-fn" formControlName="description" required="">
+              </div>
+              <div class="col-12">
+                <hr class="mt-2 mb-3">
+                <p class="fw-bold">Changer votre mot de passe:</p>
+              </div>
+              <div class="col-md-6">
+                  <div class="mb-3">
+                      <label for="account-pass" class="form-label">Nouveau mot de passe</label>
+                      <input class="form-control" type="password" id="account-pass" formControlName="password">
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="mb-3">
+                      <label for="account-confirm-pass" class="form-label">Confirmer mot de passe</label>
+                      <input class="form-control" type="password" id="account-confirm-pass" formControlName="password2">
+                  </div>
+              </div>
+              <div class="col-12">
+                  <hr class="mt-2 mb-3">
+                  <div class="d-flex flex-wrap justify-content-end align-items-center">
+                    <button class="btn btn-style-1 btn-danger" type="button">Supprimer mon compte</button>
+                    <button class="btn btn-style-1 btn-primary ms-3" type="submit">Appliquer</button>
+                  </div>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>

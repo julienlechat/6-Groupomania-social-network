@@ -1,6 +1,18 @@
 const mysql = require('mysql')
 const db = require('../mysql')
+const fs = require('fs')
+const bcrypt = require('bcrypt')
 var moment = require('moment');
+const pwdValidator = require('password-validator')
+
+let pwd = new pwdValidator();
+pwd
+.is().min(8) // minimum 8 caractères
+.is().max(25) // maximum 25 caractères
+.has().uppercase() // une majuscule
+.has().lowercase() // une minuscule
+.has().not().spaces() // pas d'espaces
+.has().digits() // un chiffre
 
 exports.getProfileById = async (req, res) => {
     const userTable = []
@@ -71,6 +83,47 @@ exports.getProfileById = async (req, res) => {
         res.status(200).json(userTable)
 
     }catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
+    }
+}
+
+exports.editProfile = async (req, res) => {
+    const { description, password } = req.body
+
+    try {
+        if (!description && !password && !req.file) throw "Vous devez remplir les champs !"
+
+        const SQL = () => {
+            if (description && !req.file) return mysql.format(`UPDATE users SET description = ? WHERE id = ?`, [description, req.token.userId])
+            if (!description && req.file) return mysql.format(`UPDATE users SET img_profil = ? WHERE id = ?`, [req.file.filename, req.token.userId])
+            return mysql.format(`UPDATE users SET description = ?, img_profil = ? WHERE id = ?`, [description, req.file.filename, req.token.userId])
+        }
+
+        if (req.file) {
+            console.log('ouais ouais')
+            const userSQL = mysql.format(`SELECT img_profil FROM users WHERE id = ?`, [req.token.userId])
+            const user = await db.query(userSQL)
+            if (user[0].length === 0) throw 'user not found'
+
+            if (user[0][0].img_profil) fs.unlink('images/profile/' + user[0][0].img_profil, (err) => {
+                if (err) res.status(500).json({err: 'error while deleting image'})
+            })
+
+        }
+
+        if (description || req.file) await db.query(SQL())
+
+        if (!password) return res.status(201).json({message: 'ok'})
+        if (!pwd.validate(password)) throw 'Votre mot de passe est trop simple !'
+
+        bcrypt.hash(password, 10)
+        .then(hash => {
+            const sql = mysql.format(`UPDATE users SET password = ? WHERE id = ?`, [hash, req.token.userId]);
+            db.query(sql)
+            return res.status(201).json({ message: 'ok'})
+        })
+        .catch(error => res.status(500).json(error))
+    } catch (err) {
+        return res.status(500).json(err)
     }
 }

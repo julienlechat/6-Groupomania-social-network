@@ -13,6 +13,7 @@ import { ActualityComponent } from './actuality/actuality.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { publishComponent } from './actuality/publish/publish.component';
 import { ProfileComponent } from './profile/profile.component';
+import { SettingComponent } from './setting/setting.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { ProfileComponent } from './profile/profile.component';
     SignupComponent,
     ActualityComponent,
     publishComponent,
-    ProfileComponent
+    ProfileComponent,
+    SettingComponent
   ],
   imports: [
     BrowserModule,

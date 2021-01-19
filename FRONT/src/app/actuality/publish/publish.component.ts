@@ -7,16 +7,15 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'publish',
   templateUrl: './publish.component.html',
-  styleUrls: ['./publish.component.css']
+  styleUrls: ['./publish.component.css'],
 })
 
 export class publishComponent implements OnInit {
 
-  errorMsg?: string;
   imageURL?: string;
   uploadForm: FormGroup;
-
   img_profil?: string;
+  errorMsg?: string;
 
 
   constructor(public fb: FormBuilder,private postStatut: PostStatut,private router: Router, private auth: AuthService) {
@@ -28,10 +27,10 @@ export class publishComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.img_profil = this.auth.getImgProfil();
+    this.img_profil = this.auth.getUser().img_profil;
   }
 
-  suprAlert() {
+  removeError(): void {
     this.errorMsg = undefined
   }
 
@@ -57,20 +56,21 @@ export class publishComponent implements OnInit {
     var img = this.uploadForm.get('imgPost')?.value;
     
     // Envoie le statut et l'image au serveur
-    this.postStatut.post(statut, img).then(
-      () => {
-      // Actualiser la page
-      let currentUrl = this.router.url;
-      this.router.routeReuseStrategy.shouldReuseRoute = () => false;
-      this.router.onSameUrlNavigation = 'reload';
-      this.router.navigate([currentUrl]);
-      }
-    )
-    .catch(
-      (error) => {
-          this.errorMsg = error;
+    this.postStatut.post(statut, img)
+      .then(
+        () => {
+        // Actualiser la page
+        let currentUrl = this.router.url;
+        this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+        this.router.onSameUrlNavigation = 'reload';
+        this.router.navigate([currentUrl]);
         }
-    );
+      )
+      .catch(
+        (err) => {
+            this.errorMsg = err
+          }
+      );
 
 
   }

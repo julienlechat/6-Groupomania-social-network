@@ -21,8 +21,8 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/accueil'])
           })
         .catch(
-          (error) => {
-            localStorage.removeItem('token');
+          () => {
+            this.router.navigate(['/login'])
         })
     }
   }
