@@ -15,9 +15,6 @@ export class AuthService {
     private authToken?: string | null;
     
     private userInfo: User = new User;
-    private userId?: number;
-    private userRole?: number;
-    private img_profil?: string;
 
 
     constructor(private http: HttpClient,

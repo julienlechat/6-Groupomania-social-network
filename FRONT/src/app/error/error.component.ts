@@ -35,7 +35,6 @@ export class ErrorComponent implements OnInit {
     this.alertSub = this.error.alertCast.subscribe(Alert => {
       this.alertMsg = Alert;
       this.Modal = new Bootstrap.Modal(this.alertElement?.nativeElement)
-      console.log(this.alertMsg)
       this.Modal.show()
     })
 

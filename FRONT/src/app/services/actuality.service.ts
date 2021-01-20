@@ -20,10 +20,7 @@ export class ActualityService {
         (actus: Actuality[]) => {
         this.Actuality$.next(actus);
       },
-      (error) => {
-        this.Actuality$.next([]);
-        console.error(error);
-      }
+      () => this.Actuality$.next([])
     );
   }
 
@@ -38,9 +35,7 @@ export class ActualityService {
           (response: { statut?: number }) => {
             resolve(response);
           },
-          (error) => {
-            reject(error);
-        }
+          (error) =>  reject(error)
       );
     });
   }
@@ -56,9 +51,7 @@ export class ActualityService {
           (response: { statut?: number }) => {
             resolve(response);
           },
-          (error) => {
-            reject(error);
-        }
+          (error) =>  reject(error)
       );
     });
   }
@@ -75,9 +68,7 @@ export class ActualityService {
           (response: { comments?: any }) => {
             resolve(response);
           },
-          (error) => {
-            reject(error);
-        }
+          (error) => reject(error)
       );
     });
   }
@@ -90,9 +81,7 @@ export class ActualityService {
           (res: { message?: string }) => {
             resolve(res);
           },
-          (error) => {
-            reject(error);
-        }
+          (error) => reject(error)
       );
     });
   }
@@ -105,9 +94,7 @@ export class ActualityService {
           (res: { message?: string }) => {
             resolve(res);
           },
-          (error) => {
-            reject(error);
-        }
+          (error) => reject(error)
       );
     });
   }

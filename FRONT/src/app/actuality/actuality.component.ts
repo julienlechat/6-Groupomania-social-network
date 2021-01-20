@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs';
 import { Actuality } from '../models/Actuality.model';
 import 'lg-zoom.js';
 import 'lg-share.js';
-import * as Bootstrap from 'bootstrap';
 import { ErrorService } from '../services/error.service';
 
 @Component({
@@ -32,10 +31,7 @@ export class ActualityComponent implements OnInit {
     this.ngOnDestroy()
     this.img_profil = this.auth.getUser().img_profil;
     this.actualitySub = this.Actuality.Actuality$.subscribe(
-      (actus) => {
-        console.log(actus)
-        this.actus = actus;
-      },
+      (actus) => this.actus = actus,
       (error) => this.error.setMsg(error.error)
     );
     this.Actuality.getActuality();
@@ -86,7 +82,7 @@ export class ActualityComponent implements OnInit {
           return
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   dislikePost(idpost: number): void {
@@ -111,7 +107,7 @@ export class ActualityComponent implements OnInit {
           return
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   addComment(event: any, idPost: number, id: number):void {
@@ -120,12 +116,11 @@ export class ActualityComponent implements OnInit {
     this.Actuality.addComment(idPost, text)
       .then(
         (res: any) => {
-          console.log(res)
           this.actus[id] = {...this.actus[id],...res}
           event.srcElement.children[0].children[0].children[1].value = null;
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   showDeletePost(postId: number, id:number):void {

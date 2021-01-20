@@ -55,11 +55,6 @@ export class SettingComponent implements OnInit {
     this.error.setAlert(AlertSend)
   }
 
-  deleteMyAccount(): void {
-    this.auth.deleteMyAccount()
-      .catch((err) => this.error.setMsg(err.error))
-  }
-
    // Image Preview
    showPreview(event: any) {
     const file = event.target.files[0];
@@ -83,7 +78,7 @@ export class SettingComponent implements OnInit {
       var password2 = this.uploadForm.get('password2')?.value;
       var img = this.uploadForm.get('imgProfil')?.value;
 
-      if (password !== password2) return console.log('mot de passe different')
+      if (password !== password2) return this.error.setMsg('Les mots de passes sont différent')
       
       // Envoie le statut et l'image au serveur
       this.setting.post(desc, password, img)

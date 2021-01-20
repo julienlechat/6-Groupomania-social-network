@@ -54,20 +54,14 @@ export class publishComponent implements OnInit {
     
     // Envoie le statut et l'image au serveur
     this.postStatut.post(statut, img)
-      .then(
-        () => {
+      .then(() => {
         // Actualiser la page
         let currentUrl = this.router.url;
         this.router.routeReuseStrategy.shouldReuseRoute = () => false;
         this.router.onSameUrlNavigation = 'reload';
         this.router.navigate([currentUrl]);
-        }
-      )
-      .catch(
-        (err) => {
-            this.error.setMsg(err.error)
-          }
-      );
+        })
+      .catch((err) => this.error.setMsg(err.error));
 
 
   }

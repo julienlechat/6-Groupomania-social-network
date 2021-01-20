@@ -16,14 +16,8 @@ export class AppComponent implements OnInit {
 
     if (localStorage.getItem('token')) {
       this.auth.isLogged()
-        .then(
-          () => {
-            this.router.navigate(['/accueil'])
-          })
-        .catch(
-          () => {
-            this.router.navigate(['/login'])
-        })
+        .then(() =>  this.router.navigate(['/accueil']))
+        .catch(() => this.router.navigate(['/login']))
     }
   }
 }

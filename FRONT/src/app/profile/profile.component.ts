@@ -38,10 +38,9 @@ export class ProfileComponent implements OnInit {
         this.profileSub = this.profile.Profile$.subscribe(
           (user) => {
             this.user = user
-            console.log(this.user)
             this.editable()
           },
-          (error) => this.error.setMsg(error.error))
+          (err) => this.error.setMsg(err.error))
         this.profile.getProfileById(params.id);
       }
     )
@@ -105,7 +104,7 @@ export class ProfileComponent implements OnInit {
           return
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   dislikePost(idpost: number): void {
@@ -131,7 +130,7 @@ export class ProfileComponent implements OnInit {
           return
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   addComment(event: any, idPost: number, id: number):void {
@@ -146,7 +145,7 @@ export class ProfileComponent implements OnInit {
           event.srcElement.children[0].children[0].children[1].value = null;
         }
       )
-      .catch((error) => this.error.setMsg(error.error))
+      .catch((err) => this.error.setMsg(err.error))
   }
 
   showDeletePost(postId: number, id:number):void {

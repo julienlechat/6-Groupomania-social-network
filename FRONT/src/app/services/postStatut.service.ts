@@ -30,9 +30,7 @@ export class PostStatut {
                     (res: { message?: string }) => {
                         resolve(res);
                     },
-                    (error) => {
-                        reject(error);
-                    }
+                    (error) => reject(error)
                 );
         });
 
