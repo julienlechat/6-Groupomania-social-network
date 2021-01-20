@@ -8,12 +8,6 @@
         <button type="button" routerLink="login" class="btn btn-sm btn-light">Connexion</button>
       </div>
       <ul class="navbar-nav d-flex justify-content-end align-items-center" *ngIf="isAuth">
-        <a class="nav-link-gp waves-effect waves-light me-2">
-          <i class="nav-ico far fa-bell"></i>
-        </a>
-        <a class="nav-link-gp waves-effect waves-light me-2">
-          <i class="nav-ico fas fa-sitemap"></i>
-        </a>
         <a class="nav-link-gp me-2" [routerLink]="viewProfil()">
           <img [src]="img_profil" class="img-profil">
         </a>

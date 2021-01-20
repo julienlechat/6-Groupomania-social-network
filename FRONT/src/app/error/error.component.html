@@ -1,0 +1,22 @@
+<div class="container mt-4 alert alert-danger alert-dismissible" style="max-width: 800px;" role="alert" *ngIf="errorMsg">
+    {{ errorMsg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="removeError()"></button>
+</div>
+
+<div #alertElement class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 [innerHTML]="alertMsg?.title" class="modal-title"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p [innerHTML]="alertMsg?.content"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+          <button [innerHTML]="alertMsg?.buttonText" type="button" class="btn btn-danger" [ngClass]="(alertMsg?.buttonType === 1)?'btn btn-danger':'btn btn-primary'" (click)="delete()"></button>
+        </div>
+      </div>
+    </div>
+  </div>

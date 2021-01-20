@@ -37,9 +37,10 @@ exports.getProfileById = async (req, res) => {
 
         for (i=0; i<post[0].length; i++) {
             const date = moment(post[0][i].date).locale("fr").calendar();
-            const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, req.token.userId])
 
+            const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, req.token.userId])
             const postLike = await db.query(likeREQ)
+
             // On récupére les commentaires
             const comment = []
             const commentREQ = mysql.format(commentSQL, [post[0][i].id])
@@ -92,6 +93,7 @@ exports.editProfile = async (req, res) => {
 
     try {
         if (!description && !password && !req.file) throw "Vous devez remplir les champs !"
+        if (description && description.length > 80) throw "Votre description est trop longue !"
 
         const SQL = () => {
             if (description && !req.file) return mysql.format(`UPDATE users SET description = ? WHERE id = ?`, [description, req.token.userId])
@@ -100,7 +102,6 @@ exports.editProfile = async (req, res) => {
         }
 
         if (req.file) {
-            console.log('ouais ouais')
             const userSQL = mysql.format(`SELECT img_profil FROM users WHERE id = ?`, [req.token.userId])
             const user = await db.query(userSQL)
             if (user[0].length === 0) throw 'user not found'
@@ -122,7 +123,17 @@ exports.editProfile = async (req, res) => {
             db.query(sql)
             return res.status(201).json({ message: 'ok'})
         })
-        .catch(error => res.status(500).json(error))
+        .catch(err => res.status(500).json(err))
+    } catch (err) {
+        return res.status(500).json(err)
+    }
+}
+
+exports.deleteProfile = async (req, res) => {
+    try {
+        const delSQL = mysql.format(`DELETE FROM users WHERE id = ?`, [req.token.userId])
+        await db.query(delSQL)
+        res.status(200).json({message: 'ok'})
     } catch (err) {
         return res.status(500).json(err)
     }

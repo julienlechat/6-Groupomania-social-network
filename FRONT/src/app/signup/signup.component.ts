@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { ErrorService } from '../services/error.service';
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +21,7 @@ export class SignupComponent implements OnInit {
     password2: new FormControl('', [Validators.required, Validators.min(8)])
   });
 
-  constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService, private error: ErrorService, private router: Router) { }
 
   ngOnInit(): void {  }
 
@@ -32,14 +34,8 @@ export class SignupComponent implements OnInit {
 
       if (password === password2) {
         this.auth.createUser(email, password, lastname, firstname)
-          .then(
-            (success) => {
-              console.log(success);
-            })
-          .catch(
-            (error) => {
-              this.errorMsg = 'Error: ' + error.error.err;
-            })
+          .then(() => this.router.navigate(['login']))
+          .catch((err) => this.error.setMsg(err.error))
       }
     }
 }

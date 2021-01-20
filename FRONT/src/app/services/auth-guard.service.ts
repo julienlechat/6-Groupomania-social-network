@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
             }
           }
         );
-        this.auth.isLogged()
+        this.auth.ctrlToken()
       }
     );
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injectable, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Profile } from '../models/Profile.model';
@@ -7,13 +7,17 @@ import { ActualityService } from '../services/actuality.service';
 import { ProfileService } from '../services/profile.service'
 import 'lg-zoom.js';
 import 'lg-share.js';
-import * as Bootstrap from 'bootstrap';
+import { ErrorService } from '../services/error.service';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
+@Injectable({
+  providedIn: 'root'
+})
+
 export class ProfileComponent implements OnInit {
 
   img_profil?: string;
@@ -23,15 +27,7 @@ export class ProfileComponent implements OnInit {
   user: Profile[] = [];
   lg: any;
 
-  alertId !: number;
-  alertTitle?: string;
-  alertContent?: string;
-  alertElementId!: number;
-  alertPostId!: number ;
-  alertComId !: number;
-  Modal : any;
-
-  constructor(private route: ActivatedRoute, private router: Router, private profile: ProfileService, private Actuality: ActualityService, private auth: AuthService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private profile: ProfileService, public Actuality: ActualityService, private auth: AuthService, private error: ErrorService) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(
@@ -42,20 +38,17 @@ export class ProfileComponent implements OnInit {
         this.profileSub = this.profile.Profile$.subscribe(
           (user) => {
             this.user = user
+            console.log(this.user)
             this.editable()
           },
-          (error) => {
-            console.log(error);
-          })
+          (error) => this.error.setMsg(error.error))
         this.profile.getProfileById(params.id);
       }
     )
   }
   
   ngOnDestroy(): void {
-    if (this.profileSub) {
-      this.profileSub.unsubscribe();
-    }
+    this.profileSub?.unsubscribe();
   }
   
   editable() {
@@ -98,27 +91,21 @@ export class ProfileComponent implements OnInit {
             if (this.user[0].post[i].postId === idpost && res.statut === 1) {
               this.user[0].post[i].like += 1;
               this.user[0].post[i].liked = 1;
-              return
             }
             if (this.user[0].post[i].postId === idpost && res.statut === 0) {
               this.user[0].post[i].like -= 1;
               this.user[0].post[i].liked = 0;
-              return
             }
             if (this.user[0].post[i].postId === idpost && res.statut === -1) {
               this.user[0].post[i].dislike -= 1;
               this.user[0].post[i].like += 1;
               this.user[0].post[i].liked = 1;
-              return
             }
           }
+          return
         }
       )
-      .catch(
-        (error) => {
-            console.log(error)
-        }
-      )
+      .catch((error) => this.error.setMsg(error.error))
   }
 
   dislikePost(idpost: number): void {
@@ -130,26 +117,21 @@ export class ProfileComponent implements OnInit {
             if (this.user[0].post[i].postId === idpost && res.statut === -1) {
               this.user[0].post[i].dislike += 1;
               this.user[0].post[i].liked = -1;
-              return
             }
             if (this.user[0].post[i].postId === idpost && res.statut === 0) {
               this.user[0].post[i].dislike -= 1;
               this.user[0].post[i].liked = 0;
-              return
             }
             if (this.user[0].post[i].postId === idpost && res.statut === 1) {
               this.user[0].post[i].dislike += 1;
               this.user[0].post[i].like -= 1;
               this.user[0].post[i].liked = -1;
-              return
             }
           }
+          return
         }
       )
-      .catch(
-        (error) => {
-            console.log(error)
-      })
+      .catch((error) => this.error.setMsg(error.error))
   }
 
   addComment(event: any, idPost: number, id: number):void {
@@ -164,83 +146,61 @@ export class ProfileComponent implements OnInit {
           event.srcElement.children[0].children[0].children[1].value = null;
         }
       )
-      .catch(
-        (error) => {
-          console.log(error)
-      })
+      .catch((error) => this.error.setMsg(error.error))
   }
 
-  showDeletePost(element: any, postId: number, id:number):void {
-    this.Modal = new Bootstrap.Modal(element)
-
-    this.alertId = 1
-    this.alertTitle = "Supprimer un post"
-    this.alertContent = "Vous êtes sur le point de supprimer un post, êtes vous sûr ?"
-    this.alertElementId = id
-    this.alertPostId = postId
-
-    this.Modal.show()
+  showDeletePost(postId: number, id:number):void {
+    const AlertSend = {
+      id: 1,
+      title: "Supprimer un post",
+      content: "Vous êtes sur le point de supprimer un post, êtes vous sûr ?",
+      elementId: id,
+      postId: postId,
+      comId: 0,
+      buttonType: 1,
+      buttonText: 'Supprimer',
+      source: 2
+    }
+    this.error.setAlert(AlertSend)
   }
 
-  showDeleteCom(element: any, postId: number, id:number, comId: number):void {
-    this.Modal = new Bootstrap.Modal(element)
-
-    this.alertId = 2;
-    this.alertTitle = "Supprimer un commentaire"
-    this.alertContent = "Vous êtes sur le point de supprimer un commentaire, êtes vous sûr ?"
-    this.alertElementId = id
-    this.alertPostId = postId
-    this.alertComId = comId
-
-    this.Modal.show()
+  showDeleteCom(postId: number, id:number, commentId: number):void {
+    const AlertSend = {
+      id: 2,
+      title: "Supprimer un commentaire",
+      content: "Vous êtes sur le point de supprimer un commentaire, êtes vous sûr ?",
+      elementId: id,
+      postId: postId,
+      comId: commentId,
+      buttonType: 1,
+      buttonText: 'Supprimer',
+      source: 2
+    }
+    this.error.setAlert(AlertSend)
   }
 
-  delete():void {
+  delete(id: number, ElemId: number, postId?: number) {
+    console.log(id, ElemId, postId)
+    if (!postId) postId = 0
     // Supprimer un post
-    if (this.alertId === 1) {
-      this.Actuality.deletePost(this.alertPostId)
-      .then(
-        () => {
-          if (!this.user[0].post) return
-          this.user[0].post.splice(this.alertElementId, 1)
-          for (let i=0; i<this.user[0].post.length; i++) {
-            this.user[0].post[i].id = i
-          }
-        }
-      )
-      .catch(
-        (error) => {
-          console.log(error)
-        }
-      )
+   if (id === 1) {
+    if (!this.user[0].post) return
+    this.user[0].post?.splice(ElemId, 1)
+    for (let i=0; i<this.user[0].post.length; i++) {
+      this.user[0].post[i].id = i
     }
+   }
+  // Supprimer un commentaire
+  if (id === 2) {
+    if (!this.user[0].post) return
+    var comment = this.user[0].post[postId].comments
+    comment?.splice(ElemId, 1)
 
-    // Supprimer un commentaire
-    if (this.alertId === 2) {
-      this.Actuality.deleteCom(this.alertComId)
-      .then(
-        () => {
-          if (!this.user[0].post) return
-          var comment = this.user[0].post[this.alertPostId].comments
-          comment?.splice(this.alertElementId, 1)
-
-          if (comment) {
-            for (let i=0; i<comment.length; i++) {
-              comment[i].id = i
-            }
-          }
-        }
-      )
-      .catch(
-        (error) => {
-          console.log(error)
-        }
-      )
+    if (comment) {
+      for (let i=0; i<comment.length; i++) {
+        comment[i].id = i
+      }
     }
-    
-    if (this.Modal) this.Modal.hide()
   }
-
-
-
+}
 }

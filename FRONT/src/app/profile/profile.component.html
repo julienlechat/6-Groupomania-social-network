@@ -1,22 +1,5 @@
 <div class="container">
-
-    <div #alertDel class="modal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 [innerHTML]="alertTitle" class="modal-title"></h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p [innerHTML]="alertContent"></p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-              <button type="button" class="btn btn-danger" (click)="delete()">Supprimer</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <app-error></app-error>
 
 
     <div class="card text-center mx-auto mt-2" style="max-width: 800px;">
@@ -36,7 +19,7 @@
             <div class="d-flex align-items-center">
                 <img [src]="user[0].img_profil" width="50" height="50" class="rounded-circle img-profil">
                 <div class="ms-2 align-items-left">
-                <a class="link-profile" [routerLink]='linkProfile(profileId)'>
+                <a class="link-profile" [routerLink]='Actuality.linkProfile(profileId)'>
                     <p class="m-0 fw-bold text-start">
                     {{ user[0].firstname + ' ' + user[0].lastname }}
                     </p>
@@ -45,7 +28,7 @@
                 </div>
             </div>
             <div class="d-flex" *ngIf="user[0].editable === true">
-                <a (click)="showDeletePost(alertDel, actu.postId, actu.id)" style="cursor: pointer;">
+                <a (click)="showDeletePost(actu.postId, actu.id)" style="cursor: pointer;">
                 <i class="far fa-times-circle"></i>
                 </a>
             </div>
@@ -71,7 +54,7 @@
                 <img [src]="comment.img_profil" width="45" height="45" class="rounded-circle img-profil">
                 <div class="ms-2 d-flex justify-content-center flex-column">
                 <div class="d-flex flex-row">
-                    <a class="link-profile" [routerLink]='linkProfile(comment.userId)'>
+                    <a class="link-profile" [routerLink]='Actuality.linkProfile(comment.userId)'>
                     <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}</p>
                     </a>
                     <p class="m-0 ms-1 text-start text-muted gp-date-com">• {{ comment.date }}</p>
@@ -80,7 +63,7 @@
                 </div>
             </div>
             <div class="d-flex me-3 align-items-center" *ngIf="userDeleteCom(comment.userId) === true">
-                <a (click)="showDeleteCom(alertDel, actu.id, comment.id, comment.comId)" style="cursor: pointer;">
+                <a (click)="showDeleteCom(actu.id, comment.id, comment.comId)" style="cursor: pointer;">
                 <i class="fas fa-times"></i>
                 </a>
             </div>

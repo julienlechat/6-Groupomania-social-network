@@ -13,7 +13,7 @@ export class PostStatut {
         return new Promise((resolve, reject) => {
             console.log(post, image)
                 
-            if (post === null && image === null) return reject('Votre publication est vide')
+            if (post === null && image === null) return reject({error: 'Votre publication est vide'})
 
             const formData = new FormData();
 

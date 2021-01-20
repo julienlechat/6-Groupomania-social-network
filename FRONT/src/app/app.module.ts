@@ -14,6 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { publishComponent } from './actuality/publish/publish.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingComponent } from './setting/setting.component';
+import { ErrorComponent } from './error/error.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { SettingComponent } from './setting/setting.component';
     ActualityComponent,
     publishComponent,
     ProfileComponent,
-    SettingComponent
+    SettingComponent,
+    ErrorComponent
   ],
   imports: [
     BrowserModule,

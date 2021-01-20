@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from "@angular/forms";
 import { PostStatut } from '../../services/postStatut.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { ErrorService } from 'src/app/services/error.service';
 
 @Component({
   selector: 'publish',
@@ -18,7 +19,7 @@ export class publishComponent implements OnInit {
   errorMsg?: string;
 
 
-  constructor(public fb: FormBuilder,private postStatut: PostStatut,private router: Router, private auth: AuthService) {
+  constructor(public fb: FormBuilder, private postStatut: PostStatut ,private router: Router, private auth: AuthService, public error: ErrorService) {
     // Reactive Form
     this.uploadForm = this.fb.group({
       imgPost: [null],
@@ -28,10 +29,6 @@ export class publishComponent implements OnInit {
 
   ngOnInit(): void {
     this.img_profil = this.auth.getUser().img_profil;
-  }
-
-  removeError(): void {
-    this.errorMsg = undefined
   }
 
   // Image Preview
@@ -68,7 +65,7 @@ export class publishComponent implements OnInit {
       )
       .catch(
         (err) => {
-            this.errorMsg = err
+            this.error.setMsg(err.error)
           }
       );
 

@@ -7,5 +7,6 @@ const primary = require('../middleware/primary')
 
 route.get('/:id', primary.tokenExport, profileCtrl.getProfileById)
 route.post('/setting', primary.tokenExport, imgprofile, profileCtrl.editProfile)
+route.delete('/delete', primary.tokenExport, profileCtrl.deleteProfile)
 
 module.exports = route

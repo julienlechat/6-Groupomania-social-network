@@ -1,5 +1,7 @@
 <div class="container mt-5" *ngIf="user">
-  <div class="row">
+    <app-error></app-error>
+
+  <div class="row mx-auto mt-5" style="max-width: 800px;">
       <div class="col-lg-4 pb-5">
           <!-- Account Sidebar-->
           <div class="author-card pb-3">
@@ -61,7 +63,7 @@
               <div class="col-12">
                   <hr class="mt-2 mb-3">
                   <div class="d-flex flex-wrap justify-content-end align-items-center">
-                    <button class="btn btn-style-1 btn-danger" type="button">Supprimer mon compte</button>
+                    <button class="btn btn-style-1 btn-danger" type="button" (click)="showDeleteCompte()" >Supprimer mon compte</button>
                     <button class="btn btn-style-1 btn-primary ms-3" type="submit">Appliquer</button>
                   </div>
               </div>

@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 const bodyParser = require('body-parser')
 const path = require('path')
+const helmet = require('helmet');
 
 // ROUTE
 const usersRoute = require('./routes/users')
@@ -14,6 +15,9 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     next();
   });
+  
+// SECURISE LES EN-TETES
+app.use(helmet());
 
 // PARSE LE BODY EN JSON
 app.use(bodyParser.urlencoded({extended: true}))

@@ -2,7 +2,6 @@ const mysql = require('mysql')
 const db = require('../mysql')
 const fs = require('fs')
 var moment = require('moment');
-const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
 // Charger la page d'actualité
 exports.getActus = async (req,res) => {
@@ -40,7 +39,7 @@ exports.getActus = async (req,res) => {
                                 FROM post_comment
                                 join users on post_comment.user = users.id
                                 WHERE id_post = ?
-                                ORDER BY post_comment.id`
+                                ORDER BY post_comment.id LIMIT 10`
             const commentREQ = mysql.format(commentSQL, [post[0][i].id])
             const postComment = await db.query(commentREQ)
 
@@ -80,7 +79,7 @@ exports.getActus = async (req,res) => {
         res.status(200).json(Actus)
         
     } catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
     }
 }
 
@@ -88,6 +87,7 @@ exports.getActus = async (req,res) => {
 exports.post = async (req, res) => {
     const { post } = req.body
     const { userId } = req.token
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
     // Préparation de la requete suivant les cas reçus
     const sql = () => {
@@ -100,7 +100,7 @@ exports.post = async (req, res) => {
         await db.query(sql())
         return res.status(201).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
     }
 }
 
@@ -114,16 +114,16 @@ exports.deletePost = async (req, res, next) => {
     try { // Essaye d'envoyer la requete SQL
         const postExist = await db.query(reqSQL)
         if (postExist[0].length === 0) throw 'post not found'
+        if (postExist[0][0].user !== userId || role !== 1) throw 'access refused'
 
-        if (postExist[0][0].user === userId || role === 1) {
-            await db.query(delSQL)
-            if (postExist[0][0].img) fs.unlink('images/post/' + postExist[0][0].img, (err) => {
-                if (err) res.status(500).json({err: 'error while deleting image'})
-            })
-        }
+        await db.query(delSQL)
+        if (postExist[0][0].img) fs.unlink('images/post/' + postExist[0][0].img, (err) => {
+            if (err) res.status(500).json({err: 'error while deleting image'})
+        })
+        
         return res.status(200).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
     }
 }
 
@@ -137,10 +137,12 @@ exports.deleteCom = async (req, res) => {
     try { // Essaye d'envoyer la requete SQL
         const commentExist = await db.query(reqSQL)
         if (commentExist[0].length === 0) throw 'comment not found'
-        if (commentExist[0][0].user === userId || role === 1) db.query(delSQL)
+        if (commentExist[0][0].user !== userId || role !== 1) throw 'access refused'
+
+        await db.query(delSQL)
         return res.status(200).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
     }
 }
 
@@ -149,6 +151,7 @@ exports.likePost = async (req, res) => {
     //Réception des informations
     const { idPost } = req.body
     const { userId } = req.token
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
     const reqSQL = mysql.format(`SELECT * FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
     const insertSQL = mysql.format(`INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)`, [userId, 1, date, idPost])
@@ -171,7 +174,7 @@ exports.likePost = async (req, res) => {
             throw 'error set like'
         }
     } catch(err) { // Récupére une erreur et l'envoie au client
-    return res.status(500).json({err})
+    return res.status(500).json(err)
     }
 }
 
@@ -180,6 +183,7 @@ exports.dislikePost = async (req, res) => {
     //Réception des informations
     const { idPost } = req.body
     const { userId } = req.token
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
     const reqSQL = mysql.format(`SELECT * FROM post_like WHERE id_post = ? AND user = ?`, [idPost, userId])
     const insertSQL = mysql.format(`INSERT INTO post_like (user, statut, date, id_post) VALUES (?, ?, ?, ?)`, [userId, -1, date, idPost])
@@ -202,7 +206,7 @@ exports.dislikePost = async (req, res) => {
             throw 'error set like'
         }
     } catch(err) { // Récupére une erreur et l'envoie au client
-    return res.status(500).json({err})
+    return res.status(500).json(err)
     }
 }
 
@@ -216,17 +220,18 @@ exports.checkPost = async (req, res, next) => {
         next();
 
     } catch(err) { // Récupére une erreur et l'envoie au client
-    return res.status(500).json({err})
+    return res.status(500).json(err)
     }
 }
 
 // Ajoute un commentaire
-exports.addComment = async (req, res, next) => {
+exports.addComment = async (req, res) => {
     const { idPost, msg } = req.body;
     const { userId } = req.token
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
     const insertREQ = mysql.format(`INSERT INTO post_comment (user, msg, date, id_post) VALUES (?, ?, ?, ?)`, [userId, msg, date, idPost])
-    const selectSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.date, post_comment.msg, post_comment.user
+    const selectSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                             FROM post_comment
                             join users on post_comment.user = users.id
                             WHERE id_post = ?
@@ -255,6 +260,6 @@ exports.addComment = async (req, res, next) => {
         }
         res.status(201).json({comments: comments})
     } catch(err) { // Récupére une erreur et l'envoie au client
-        return res.status(500).json({err})
+        return res.status(500).json(err)
     }
 }

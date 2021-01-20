@@ -1,8 +1,6 @@
 <body class="text-center">
 
-  <div class="container mt-4 alert alert-danger" role="alert" *ngIf="errorMsg">
-    {{ errorMsg }}
-  </div>
+  <app-error></app-error>
 
     <main class="form-signin">
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">

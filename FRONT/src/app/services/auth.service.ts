@@ -36,10 +36,7 @@ export class AuthService {
             (response: { message?: string }) => {
                 resolve(response);
             },
-            (error) => {
-                console.log(error)
-                reject(error);
-            }
+            (error) => reject(error)
             );
         });
     }
@@ -54,28 +51,48 @@ export class AuthService {
                 this.isAuth$.next(true);
                 resolve();
             },
-            (error) => {
-                reject(error);
-            }
+            (error) => reject(error)
             );
         });
     }
 
     isLogged() {
         return new Promise<void>((resolve, reject) => {
-          this.http.post<any>('http://localhost:3000/api/auth/islogged', null).subscribe(
+          this.http.get<any>('http://localhost:3000/api/auth/islogged').subscribe(
             (userinfo) => {
                 this.userInfo = userinfo;
                 this.authToken = localStorage.getItem('token');
                 this.isAuth$.next(true);
                 resolve();
             },
-            () => {
-                reject(this.logout());
-            }
+            () => reject(this.logout())
             );
         });
     }
+
+    ctrlToken() {
+        return new Promise<void>((resolve, reject) => {
+          this.http.get('http://localhost:3000/api/auth/ctrlToken').subscribe(
+            () => {
+                this.isAuth$.next(true);
+                resolve();
+            },
+            () =>  reject(this.logout())
+            );
+        });
+    }
+
+    deleteMyAccount() {
+        return new Promise((resolve, reject) => {
+          this.http.delete('http://localhost:3000/api/profile/delete').subscribe(
+            (ok) => {
+                this.logout()
+                resolve(ok);
+            },
+            (err) =>  reject(err)
+            );
+        });
+      }
 
     logout() {
         this.authToken = null!;

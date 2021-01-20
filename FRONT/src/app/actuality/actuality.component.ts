@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injectable, OnInit } from '@angular/core';
 import { ActualityService } from '../services/actuality.service';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -6,11 +6,15 @@ import { Actuality } from '../models/Actuality.model';
 import 'lg-zoom.js';
 import 'lg-share.js';
 import * as Bootstrap from 'bootstrap';
+import { ErrorService } from '../services/error.service';
 
 @Component({
   selector: 'app-actuality',
   templateUrl: './actuality.component.html',
   styleUrls: ['./actuality.component.css']
+})
+@Injectable({
+  providedIn: 'root'
 })
 
 export class ActualityComponent implements OnInit {
@@ -20,27 +24,19 @@ export class ActualityComponent implements OnInit {
   lg: any;
   img_profil?: string;
 
-  alertId !: number;
-  alertTitle?: string;
-  alertContent?: string;
-  alertElementId!: number;
-  alertPostId!: number ;
-  alertComId !: number;
-  Modal : any;
-
-  constructor(private Actuality: ActualityService, private auth: AuthService) { }
+  constructor(public Actuality: ActualityService,
+              private auth: AuthService, private error: ErrorService) { }
 
 
   ngOnInit(): void {
+    this.ngOnDestroy()
     this.img_profil = this.auth.getUser().img_profil;
     this.actualitySub = this.Actuality.Actuality$.subscribe(
       (actus) => {
         console.log(actus)
         this.actus = actus;
       },
-      (error) => {
-        console.log(error);
-      }
+      (error) => this.error.setMsg(error.error)
     );
     this.Actuality.getActuality();
   }
@@ -64,10 +60,6 @@ export class ActualityComponent implements OnInit {
     }
   }
 
-  linkProfile(id: number) {
-    return this.Actuality.linkProfile(id)
-  }
-
   userDeleteCom(userId: number):Boolean {
     return this.Actuality.userDeleteCom(userId);
   }
@@ -80,27 +72,21 @@ export class ActualityComponent implements OnInit {
             if (this.actus[i].postId === idpost && res.statut === 1) {
               this.actus[i].like += 1;
               this.actus[i].liked = 1;
-              return
             }
             if (this.actus[i].postId === idpost && res.statut === 0) {
               this.actus[i].like -= 1;
               this.actus[i].liked = 0;
-              return
             }
             if (this.actus[i].postId === idpost && res.statut === -1) {
               this.actus[i].dislike -= 1;
               this.actus[i].like += 1;
               this.actus[i].liked = 1;
-              return
             }
           }
+          return
         }
       )
-      .catch(
-        (error) => {
-            console.log(error)
-        }
-      )
+      .catch((error) => this.error.setMsg(error.error))
   }
 
   dislikePost(idpost: number): void {
@@ -111,26 +97,21 @@ export class ActualityComponent implements OnInit {
             if (this.actus[i].postId === idpost && res.statut === -1) {
               this.actus[i].dislike += 1;
               this.actus[i].liked = -1;
-              return
             }
             if (this.actus[i].postId === idpost && res.statut === 0) {
               this.actus[i].dislike -= 1;
               this.actus[i].liked = 0;
-              return
             }
             if (this.actus[i].postId === idpost && res.statut === 1) {
               this.actus[i].dislike += 1;
               this.actus[i].like -= 1;
               this.actus[i].liked = -1;
-              return
             }
           }
+          return
         }
       )
-      .catch(
-        (error) => {
-            console.log(error)
-      })
+      .catch((error) => this.error.setMsg(error.error))
   }
 
   addComment(event: any, idPost: number, id: number):void {
@@ -144,79 +125,58 @@ export class ActualityComponent implements OnInit {
           event.srcElement.children[0].children[0].children[1].value = null;
         }
       )
-      .catch(
-        (error) => {
-          console.log(error)
-      })
+      .catch((error) => this.error.setMsg(error.error))
   }
 
-  showDeletePost(element: any, postId: number, id:number):void {
-    this.Modal = new Bootstrap.Modal(element)
-
-    this.alertId = 1
-    this.alertTitle = "Supprimer un post"
-    this.alertContent = "Vous êtes sur le point de supprimer un post, êtes vous sûr ?"
-    this.alertElementId = id
-    this.alertPostId = postId
-
-    this.Modal.show()
+  showDeletePost(postId: number, id:number):void {
+    const AlertSend = {
+      id: 1,
+      title: "Supprimer un post",
+      content: "Vous êtes sur le point de supprimer un post, êtes vous sûr ?",
+      elementId: id,
+      postId: postId,
+      comId: 0,
+      buttonType: 1,
+      buttonText: 'Supprimer',
+      source: 1
+    }
+    this.error.setAlert(AlertSend)
   }
 
-  showDeleteCom(element: any, postId: number, id:number, comId: number):void {
-    this.Modal = new Bootstrap.Modal(element)
-
-    this.alertId = 2;
-    this.alertTitle = "Supprimer un commentaire"
-    this.alertContent = "Vous êtes sur le point de supprimer un commentaire, êtes vous sûr ?"
-    this.alertElementId = id
-    this.alertPostId = postId
-    this.alertComId = comId
-
-    this.Modal.show()
+  showDeleteCom(postId: number, id:number, commentId: number):void {
+    const AlertSend = {
+      id: 2,
+      title: "Supprimer un commentaire",
+      content: "Vous êtes sur le point de supprimer un commentaire, êtes vous sûr ?",
+      elementId: id,
+      postId: postId,
+      comId: commentId,
+      buttonType: 1,
+      buttonText: 'Supprimer',
+      source: 1
+    }
+    this.error.setAlert(AlertSend)
   }
 
-  delete():void {
+  delete(id: number, ElemId: number, postId?: number):void {
+    if (!postId) postId = 0
     // Supprimer un post
-    if (this.alertId === 1) {
-      this.Actuality.deletePost(this.alertPostId)
-      .then(
-        () => {
-          this.actus.splice(this.alertElementId, 1)
-          for (let i=0; i<this.actus.length; i++) {
-            this.actus[i].id = i
-          }
-        }
-      )
-      .catch(
-        (error) => {
-          console.log(error)
-        }
-      )
+   if (id === 1) {
+    this.actus.splice(ElemId, 1)
+    for (let i=0; i<this.actus.length; i++) {
+      this.actus[i].id = i
     }
-
+   }
     // Supprimer un commentaire
-    if (this.alertId === 2) {
-      this.Actuality.deleteCom(this.alertComId)
-      .then(
-        () => {
-          var comment = this.actus[this.alertPostId].comments
-          comment?.splice(this.alertElementId, 1)
+    if (id === 2) {
+      var comment = this.actus[postId].comments
+      comment?.splice(ElemId, 1)
 
-          if (comment) {
-            for (let i=0; i<comment.length; i++) {
-              comment[i].id = i
-            }
-          }
+      if (comment) {
+        for (let i=0; i<comment.length; i++) {
+          comment[i].id = i
         }
-      )
-      .catch(
-        (error) => {
-          console.log(error)
-        }
-      )
+      }
     }
-    
-    if (this.Modal) this.Modal.hide()
   }
-
 }

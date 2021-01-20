@@ -20,11 +20,8 @@ export class ProfileService {
         (profile: Profile[]) => {
         this.Profile$.next(profile);
       },
-      (error) => {
-        this.Profile$.next([]);
-        console.error(error);
-      }
-    );
+      () => this.Profile$.next([])
+      );
   }
 
 }

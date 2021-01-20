@@ -41,9 +41,9 @@ exports.signup = async (req, res) => {
                 db.query(sql)
                 return res.status(201).json({ message: 'ok'})
             })
-            .catch(error => res.status(500).json({error}))
+            .catch(err => res.status(500).json(err))
     } catch (err) {
-        res.status(500).json({err})
+        res.status(500).json(err)
     }
 }
 
@@ -78,9 +78,9 @@ exports.login = async (req, res) => {
                     )
                 })
             })
-            .catch(error => res.status(500).json({error}))
+            .catch(err => res.status(500).json(err))
     } catch (err) {
-        res.status(500).json({err})
+        res.status(500).json(err)
     }
 }
 
@@ -104,6 +104,10 @@ exports.isLogged = async (req, res, next) => {
 
         return res.status(200).json(info)
     } catch (err) {
-        res.status(500).json({err})
+        res.status(500).json(err)
     }
+}
+
+exports.ctrlToken = (req, res) => {
+    res.status(200).json({message: 'ok'})
 }
