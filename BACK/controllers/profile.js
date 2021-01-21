@@ -131,8 +131,18 @@ exports.editProfile = async (req, res) => {
 
 exports.deleteProfile = async (req, res) => {
     try {
+        const selectSQL = mysql.format(`SELECT img_profil FROM users WHERE id = ?`, [req.token.userId])
+        const selectUser = await db.query(selectSQL)
+        if (!selectUser) throw `profile didn't exist`
+
         const delSQL = mysql.format(`DELETE FROM users WHERE id = ?`, [req.token.userId])
-        await db.query(delSQL)
+        const del = await db.query(delSQL)
+        if (!del) throw 'error to delete account'
+
+        if (selectUser[0][0].img_profil) fs.unlink('images/profile/' + selectUser[0][0].img_profil, (err) => {
+            if (err) res.status(500).json({err: 'error while deleting image'})
+        })
+
         res.status(200).json({message: 'ok'})
     } catch (err) {
         return res.status(500).json(err)

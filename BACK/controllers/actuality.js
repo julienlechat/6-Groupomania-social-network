@@ -15,7 +15,7 @@ exports.getActus = async (req,res) => {
 
     try { // Essaye d'envoyer la requete SQL
         const post = await db.query(sql)
-        if (post[0].length === 0) throw 'error with actus request'
+        if(!post) throw 'error with actus request'
 
         // Boucle pour chaque post récupéré
         for (i=0; i<post[0].length; i++) {
@@ -31,7 +31,7 @@ exports.getActus = async (req,res) => {
                             (SELECT statut FROM post_like WHERE (id_post = ? AND user = ?)) AS likedByUser`
             const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, userId])
             const postLike = await db.query(likeREQ)
-            if(postLike[0].length === 0) throw 'error request like receive'
+            if(!postLike) throw 'error request like receive'
 
             // On récupére les commentaires
             const comment = []
@@ -65,6 +65,7 @@ exports.getActus = async (req,res) => {
                 lastname: post[0][i].lastname,
                 firstname: post[0][i].firstname,
                 img_profil: post[0][i].img_profil ? 'http://localhost:3000/images/profile/' + post[0] [i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                role: post[0][i].role,
                 date: date,
                 img: post[0][i].img ? 'http://localhost:3000/images/post/' + post[0][i].img : null,
                 text: post[0][i].text,
@@ -97,7 +98,8 @@ exports.post = async (req, res) => {
     }
 
     try { // Essaye d'envoyer la requete SQL
-        await db.query(sql())
+        const insert = await db.query(sql())
+        if (!insert) throw 'post insertion error'
         return res.status(201).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
         return res.status(500).json(err)
@@ -113,10 +115,8 @@ exports.deletePost = async (req, res, next) => {
 
     try { // Essaye d'envoyer la requete SQL
         const postExist = await db.query(reqSQL)
-        if (postExist[0].length === 0) throw 'post not found'
-        if (postExist[0][0].user !== userId || role !== 1) throw 'access refused'
-
-        await db.query(delSQL)
+        if (!postExist) throw 'post not found'
+        if (postExist[0][0].user === userId || role === 1) await db.query(delSQL)
         if (postExist[0][0].img) fs.unlink('images/post/' + postExist[0][0].img, (err) => {
             if (err) res.status(500).json({err: 'error while deleting image'})
         })
@@ -136,10 +136,8 @@ exports.deleteCom = async (req, res) => {
 
     try { // Essaye d'envoyer la requete SQL
         const commentExist = await db.query(reqSQL)
-        if (commentExist[0].length === 0) throw 'comment not found'
-        if (commentExist[0][0].user !== userId || role !== 1) throw 'access refused'
-
-        await db.query(delSQL)
+        if (!commentExist) throw 'comment not found'
+        if (commentExist[0][0].user === userId || role === 1) await db.query(delSQL)
         return res.status(200).json({message: 'ok'})
     } catch(err) { // Récupére une erreur et l'envoie au client
         return res.status(500).json(err)
@@ -160,15 +158,19 @@ exports.likePost = async (req, res) => {
 
     try { // Essaye d'envoyer la requete SQL
         const postLike = await db.query(reqSQL)
+        if (!postLike) throw 'error with like request'
 
         if (postLike[0].length === 0) {
-            await db.query(insertSQL)
+            const update = await db.query(insertSQL)
+            if (!update) throw 'insertion like error'
             return res.status(201).json({statut: 1})
         } else if (postLike[0][0].statut === 1) {
-            await db.query(delSQL)
+            const update = await db.query(delSQL)
+            if (!update) throw 'insertion like error'
             return res.status(200).json({statut: 0})
         } else if (postLike[0][0].statut === -1) {
-            await db.query(updateSQL)
+            const update = await db.query(updateSQL)
+            if (!update) throw 'insertion like error'
             return res.status(200).json({statut: -1})
         } else {
             throw 'error set like'
@@ -192,15 +194,19 @@ exports.dislikePost = async (req, res) => {
 
     try { // Essaye d'envoyer la requete SQL
         const postLike = await db.query(reqSQL)
+        if (!postLike) throw 'error with like request'
 
         if (postLike[0].length === 0) {
-            await db.query(insertSQL)
+            const update = await db.query(insertSQL)
+            if (!update) throw 'insertion like error'
             return res.status(201).json({statut: -1})
         } else if (postLike[0][0].statut === -1) {
-            await db.query(delSQL)
+            const update = await db.query(delSQL)
+            if (!update) throw 'insertion like error'
             return res.status(200).json({statut: 0})
         } else if (postLike[0][0].statut === 1) {
-            await db.query(updateSQL)
+            const update = await db.query(updateSQL)
+            if (!update) throw 'insertion like error'
             return res.status(200).json({statut: 1})
         } else {
             throw 'error set like'
@@ -216,7 +222,8 @@ exports.checkPost = async (req, res, next) => {
     const reqSQL = mysql.format(`SELECT COUNT(*) FROM post WHERE id = ?`, [idPost])
 
     try { // Essaye d'envoyer la requete SQL
-        await db.query(reqSQL)
+        const check = await db.query(reqSQL)
+        if (!check) throw 'error checking'
         next();
 
     } catch(err) { // Récupére une erreur et l'envoie au client
@@ -239,7 +246,8 @@ exports.addComment = async (req, res) => {
     const selectREQ = mysql.format(selectSQL, [idPost])
 
     try { // Essaye d'envoyer la requete SQL
-        await db.query(insertREQ)
+        const insert = await db.query(insertREQ)
+        if (!insert) throw 'error to insert your comment'
 
         const comments = []
         const comment = await db.query(selectREQ)

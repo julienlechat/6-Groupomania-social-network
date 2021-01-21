@@ -31,15 +31,15 @@ export class HeaderComponent implements OnInit {
 
   homePage() {
     if (this.isAuth) {
-      return ['accueil']
+      return ['/accueil']
     } else {
-      return ['login']
+      return ['/login']
     }
   }
 
   viewProfil() {
     if (this.id_profil) {
-      return ['profile/' + this.id_profil]
+      return ['/profile/' + this.id_profil]
     } else {
       return ['/']
     }

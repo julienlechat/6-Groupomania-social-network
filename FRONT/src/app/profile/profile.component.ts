@@ -179,7 +179,6 @@ export class ProfileComponent implements OnInit {
   }
 
   delete(id: number, ElemId: number, postId?: number) {
-    console.log(id, ElemId, postId)
     if (!postId) postId = 0
     // Supprimer un post
    if (id === 1) {

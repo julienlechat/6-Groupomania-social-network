@@ -16,6 +16,7 @@ export class Actuality {
     lastname?: string;
     firstname?: string;
     img_profil?: string;
+    role!: number;
     date?: Date;
     img?: string;
     text?: string;

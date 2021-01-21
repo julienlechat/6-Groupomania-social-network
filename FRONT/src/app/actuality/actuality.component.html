@@ -5,27 +5,6 @@
     <p *ngIf="actus!.length === 0" class="text-center">
       Votre fil d'actualité est vide.
     </p>
-
-
-    <!--
-    <div #alertDel class="modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 [innerHTML]="alertTitle" class="modal-title"></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p [innerHTML]="alertContent"></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-            <button type="button" class="btn btn-danger" (click)="delete()">Supprimer</button>
-          </div>
-        </div>
-      </div>
-    </div>
--->
     
       <div *ngFor="let actu of actus" class="card text-center mt-4 mx-auto" style="max-width: 800px;">
 
@@ -36,6 +15,7 @@
               <a class="link-profile" [routerLink]='Actuality.linkProfile(actu.userid)'>
                 <p class="m-0 fw-bold text-start">
                   {{ actu.firstname }} {{ actu.lastname }}
+                  <i class="fas fa-user-shield ms-1 text-primary" *ngIf="actu.role === 1"></i>
                 </p>
               </a>
               <p class="m-0 text-start text-muted gp-date">Publié le {{ actu.date }}</p>

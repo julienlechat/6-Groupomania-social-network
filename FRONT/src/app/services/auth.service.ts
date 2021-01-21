@@ -96,7 +96,7 @@ export class AuthService {
         this.userInfo = null!;
         localStorage.removeItem('token');
         this.isAuth$.next(false);
-        this.router.navigate(['login']);
+        this.router.navigate(['/login']);
     }
 
 }

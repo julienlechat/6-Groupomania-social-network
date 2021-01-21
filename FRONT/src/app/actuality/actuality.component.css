@@ -9,6 +9,9 @@
   max-height: 500px;
   object-fit: cover;
 }
+.fa-user-shield {
+  font-size: 12px;
+}
 
 .img-profil {
   object-fit: cover;
