@@ -1,3 +1,19 @@
+# Screenshots
+
+<div align="center">
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/login.PNG?raw=true" height="175px"</img>
+    <img height="0" width="8px">
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-2.PNG?raw=true" height="175px"</img>
+    <img height="0" width="8px">
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/settings.PNG?raw=true" height="175px"</img>
+</div><br />
+<div align="center">
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-1.PNG?raw=true" height="385px"</img>
+    <img height="0" width="8px">
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/profile.PNG?raw=true" height="385px"</img>
+</div>
+ 
+ 
 # How to install
 
 First, download and install [Node.js](https://nodejs.org/fr/download/releases/) v.14.15.1
