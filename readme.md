@@ -13,6 +13,8 @@ then to start server, execute `node server.js`
 # Start client
 
 now there you go run the front.
-in another terminal, run `ng serve`.
+in another terminal and navigate to `<your_folder_name>/FRONT`
+execute `ng serve` to start
+
 Navigate to `http://localhost:4200/`.
 The app will automatically reload if you change any of the source files.
