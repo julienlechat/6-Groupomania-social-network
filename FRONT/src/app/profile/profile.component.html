@@ -7,7 +7,9 @@
         <div class="d-flex ms-4 pb-2 justify-content-start profile" *ngIf="user.length > 0">
             <img [src]='user[0].img_profil' class="rounded-circle profil-img">
             <div class="d-flex flex-grow-1 flex-column ms-3 mt-4 ">
-                <p class="mt-3 fs-2 fw-bold text-light text-start">{{ user[0].firstname + ' ' + user[0].lastname }}</p>
+                <p class="mt-3 fs-2 fw-bold text-light text-start">
+                    {{ user[0].firstname + ' ' + user[0].lastname }}
+                </p>
                 <p class="mt-4 ms-2 fs-6 text-start text-secondary">{{ user[0].description }}</p>
             </div>
         </div>
@@ -22,6 +24,7 @@
                 <a class="link-profile" [routerLink]='Actuality.linkProfile(profileId)'>
                     <p class="m-0 fw-bold text-start">
                     {{ user[0].firstname + ' ' + user[0].lastname }}
+                    <i class="fas fa-user-shield ms-1 text-primary" *ngIf="user[0].role === 1"></i>
                     </p>
                 </a>
                 <p class="m-0 text-start text-muted gp-date">Publié le {{ actu.date }}</p>
@@ -55,7 +58,10 @@
                 <div class="ms-2 d-flex justify-content-center flex-column">
                 <div class="d-flex flex-row">
                     <a class="link-profile" [routerLink]='Actuality.linkProfile(comment.userId)'>
-                    <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}</p>
+                    <p class="m-0 fw-bold text-start">
+                        {{ comment.firstname }} {{ comment.lastname }}
+                        <i class="fas fa-user-shield ms-1 me-1 text-primary" *ngIf="comment.role === 1"></i>
+                    </p>
                     </a>
                     <p class="m-0 ms-1 text-start text-muted gp-date-com">• {{ comment.date }}</p>
                 </div>

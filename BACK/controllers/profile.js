@@ -18,11 +18,19 @@ exports.getProfileById = async (req, res) => {
     const userTable = []
     const userPost = []
     const userSQL = mysql.format(`SELECT lastname, firstname, img_profil, description, role FROM users WHERE id = ?`, [req.params.id])
-    const postSQL = mysql.format(`SELECT id, date, img, text FROM post WHERE user = ? ORDER BY id DESC LIMIT 10`, [req.params.id])
-    const likeSQL = `SELECT (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = 1)) AS numberLike,
-                            (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = -1)) AS numberDislike,
-                            (SELECT statut FROM post_like WHERE (id_post = ? AND user = ?)) AS likedByUser`
-    const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
+
+
+    const postSQL = mysql.format(`SELECT post.id, post.date, post.img, post.text,
+                                COUNT(CASE WHEN post_like.statut = 1 THEN 1 END) AS numberLike,
+                                COUNT(CASE WHEN post_like.statut = -1 THEN 1 END) AS numberDislike,
+                                (CASE WHEN post_like.user = post.user THEN post_like.statut ELSE '0' END) AS likedByUser
+                                FROM post
+                                LEFT JOIN post_like ON post.id = post_like.id_post
+                                WHERE post.user = ?
+                                GROUP BY 1 ORDER BY post.id DESC LIMIT 10`,
+                                [req.params.id])
+
+    const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, users.role, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                         FROM post_comment
                         join users on post_comment.user = users.id
                         WHERE id_post = ?
@@ -30,16 +38,14 @@ exports.getProfileById = async (req, res) => {
 
     try {
         const user = await db.query(userSQL)
-        if (user[0].length === 0) throw 'user not found'
+        if (!user) throw 'user not found'
         
         const post = await db.query(postSQL)
+        if (!post) throw 'error with post request'
 
 
         for (i=0; i<post[0].length; i++) {
             const date = moment(post[0][i].date).locale("fr").calendar();
-
-            const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, req.token.userId])
-            const postLike = await db.query(likeREQ)
 
             // On récupére les commentaires
             const comment = []
@@ -54,6 +60,7 @@ exports.getProfileById = async (req, res) => {
                     userId: postComment[0][j].user,
                     lastname: postComment[0][j].lastname,
                     firstname: postComment[0][j].firstname,
+                    role: postComment[0][j].role,
                     img_profil: postComment[0][j].img_profil ? 'http://localhost:3000/images/profile/' + postComment[0][j].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
                     date: date,
                     msg: postComment[0][j].msg
@@ -66,9 +73,9 @@ exports.getProfileById = async (req, res) => {
                 date: date,
                 img: post[0][i].img ? 'http://localhost:3000/images/post/' + post[0][i].img : null,
                 text: post[0][i].text,
-                like: postLike[0][0].numberLike,
-                dislike: postLike[0][0].numberDislike,
-                liked: postLike[0][0].likedByUser,
+                like: post[0][i].numberLike,
+                dislike: post[0][i].numberDislike,
+                liked: post[0][i].likedByUser,
                 comments: comment
             })
         }
@@ -77,6 +84,7 @@ exports.getProfileById = async (req, res) => {
             firstname: user[0][0].firstname,
             img_profil: user[0][0].img_profil ? 'http://localhost:3000/images/profile/' + user[0][0].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
             description: user[0][0].description,
+            role: user[0][0].role,
             editable: false,
             post: userPost
         })

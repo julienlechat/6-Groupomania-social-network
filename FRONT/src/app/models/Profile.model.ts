@@ -2,6 +2,7 @@ export class Profile {
     lastname?: string;
     firstname?: string;
     img_profil?: string;
+    role!: number;
     description?: string;
     editable?: boolean;
     post?: postUser[];
@@ -26,6 +27,7 @@ export class Profile {
     lastname?: string;
     firstname?: string;
     img_profil?: string;
+    role!: number;
     date?: Date;
     msg?: string;
   }

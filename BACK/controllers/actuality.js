@@ -8,13 +8,18 @@ exports.getActus = async (req,res) => {
     const Actus = []
     const { userId, role } = req.token
 
-    const sql = `SELECT date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id
+    const sql = `SELECT post.date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id,
+                COUNT(CASE WHEN post_like.statut = 1 THEN 1 END) AS numberLike,
+                COUNT(CASE WHEN post_like.statut = -1 THEN 1 END) AS numberDislike,
+                (CASE WHEN post_like.user = ? THEN post_like.statut ELSE '0' END) AS likedByUser
                 FROM post
                 join users on post.user = users.id
-                ORDER BY post.id DESC LIMIT 10`
+                LEFT JOIN post_like ON post.id = post_like.id_post
+                GROUP BY 1 ORDER BY post.id DESC LIMIT 10`
+    const sqlREQ =  mysql.format(sql, [userId])
 
     try { // Essaye d'envoyer la requete SQL
-        const post = await db.query(sql)
+        const post = await db.query(sqlREQ)
         if(!post) throw 'error with actus request'
 
         // Boucle pour chaque post récupéré
@@ -24,15 +29,6 @@ exports.getActus = async (req,res) => {
                 if (post[0][i].user === userId || role === 1) return true
                 return false
             }
-
-            // On récupére les likes
-            const likeSQL = `SELECT (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = 1)) AS numberLike,
-                            (SELECT COUNT(*) FROM post_like WHERE (id_post = ? AND statut = -1)) AS numberDislike,
-                            (SELECT statut FROM post_like WHERE (id_post = ? AND user = ?)) AS likedByUser`
-            const likeREQ = mysql.format(likeSQL, [post[0][i].id, post[0][i].id, post[0][i].id, userId])
-            const postLike = await db.query(likeREQ)
-            if(!postLike) throw 'error request like receive'
-
             // On récupére les commentaires
             const comment = []
             const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
@@ -70,9 +66,9 @@ exports.getActus = async (req,res) => {
                 img: post[0][i].img ? 'http://localhost:3000/images/post/' + post[0][i].img : null,
                 text: post[0][i].text,
                 editable: editable(),
-                like: postLike[0][0].numberLike,
-                dislike: postLike[0][0].numberDislike,
-                liked: postLike[0][0].likedByUser,
+                like: post[0][i].numberLike,
+                dislike: post[0][i].numberDislike,
+                liked: post[0][i].likedByUser,
                 comments: comment
             })
         }
