@@ -5,6 +5,7 @@ export class Comment {
   lastname?: string;
   firstname?: string;
   img_profil?: string;
+  role!: number;
   date?: Date;
   msg?: string;
 }

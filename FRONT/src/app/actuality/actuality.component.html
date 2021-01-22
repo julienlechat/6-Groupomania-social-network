@@ -50,7 +50,7 @@
               <div class="d-flex flex-row">
                 <a class="link-profile" [routerLink]='Actuality.linkProfile(comment.userId)'>
                   <p class="m-0 fw-bold text-start">{{ comment.firstname }} {{ comment.lastname }}
-                    <i class="fas fa-user-shield ms-1 me-1 text-primary" *ngIf="actu.role === 1"></i>
+                    <i class="fas fa-user-shield ms-1 me-1 text-primary" *ngIf="comment.role === 1"></i>
                   </p>
                   
                 </a>

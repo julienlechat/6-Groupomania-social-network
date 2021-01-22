@@ -31,7 +31,7 @@ exports.getActus = async (req,res) => {
             }
             // On récupére les commentaires
             const comment = []
-            const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
+            const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, users.role, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                                 FROM post_comment
                                 join users on post_comment.user = users.id
                                 WHERE id_post = ?
@@ -48,6 +48,7 @@ exports.getActus = async (req,res) => {
                     lastname: postComment[0][j].lastname,
                     firstname: postComment[0][j].firstname,
                     img_profil: postComment[0][j].img_profil ? 'http://localhost:3000/images/profile/' + postComment[0][j].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                    role: postComment[0][j].role,
                     date: date,
                     msg: postComment[0][j].msg
                 })
@@ -234,7 +235,7 @@ exports.addComment = async (req, res) => {
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
     const insertREQ = mysql.format(`INSERT INTO post_comment (user, msg, date, id_post) VALUES (?, ?, ?, ?)`, [userId, msg, date, idPost])
-    const selectSQL = `SELECT users.lastname, users.firstname, users.img_profil, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
+    const selectSQL = `SELECT users.lastname, users.firstname, users.img_profil, users.role, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                             FROM post_comment
                             join users on post_comment.user = users.id
                             WHERE id_post = ?
@@ -247,7 +248,7 @@ exports.addComment = async (req, res) => {
 
         const comments = []
         const comment = await db.query(selectREQ)
-        if (comment[0].length === 0) throw 'error post not exist'
+        if (!comment) throw 'error post not exist'
 
         for (i=0; i<comment[0].length; i++) {
             const date = moment(comment[0][i].date).locale("fr").calendar(); 
@@ -258,6 +259,7 @@ exports.addComment = async (req, res) => {
                 lastname: comment[0][i].lastname,
                 firstname: comment[0][i].firstname,
                 img_profil: comment[0][i].img_profil ? 'http://localhost:3000/images/profile/' + comment[0][i].img_profil : 'http://localhost:3000/images/profile/noprofile.png',
+                role: comment[0][i].role,
                 date: date,
                 msg: comment[0][i].msg
             })

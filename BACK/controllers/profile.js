@@ -18,8 +18,6 @@ exports.getProfileById = async (req, res) => {
     const userTable = []
     const userPost = []
     const userSQL = mysql.format(`SELECT lastname, firstname, img_profil, description, role FROM users WHERE id = ?`, [req.params.id])
-
-
     const postSQL = mysql.format(`SELECT post.id, post.date, post.img, post.text,
                                 COUNT(CASE WHEN post_like.statut = 1 THEN 1 END) AS numberLike,
                                 COUNT(CASE WHEN post_like.statut = -1 THEN 1 END) AS numberDislike,
@@ -42,7 +40,6 @@ exports.getProfileById = async (req, res) => {
         
         const post = await db.query(postSQL)
         if (!post) throw 'error with post request'
-
 
         for (i=0; i<post[0].length; i++) {
             const date = moment(post[0][i].date).locale("fr").calendar();
@@ -120,7 +117,10 @@ exports.editProfile = async (req, res) => {
 
         }
 
-        if (description || req.file) await db.query(SQL())
+        if (description || req.file) {
+            const update = await db.query(SQL())
+            if (!update) throw 'update error'
+        }
 
         if (!password) return res.status(201).json({message: 'ok'})
         if (!pwd.validate(password)) throw 'Votre mot de passe est trop simple !'
