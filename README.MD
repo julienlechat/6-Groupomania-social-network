@@ -24,7 +24,7 @@ now, clone this project on your computer
 
 execute this command in your bash: `git clone  https://github.com/julienlechat/P7.git <your_folder_name>`
 
-# Install & start server
+# Prepare & start server
 
 navigate to `<your_folder_name>/BACK` in your bash and execute `npm install`
 
