@@ -8,9 +8,9 @@
     <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/settings.PNG?raw=true" height="150px"</img>
 </div><br />
 <div align="center">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-1.PNG?raw=true" height="300px"</img>
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-1.PNG?raw=true" height="320px"</img>
     <img height="0" width="8px">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/profile.PNG?raw=true" height="300px"</img>
+    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/profile.PNG?raw=true" height="320px"</img>
 </div>
  
  
