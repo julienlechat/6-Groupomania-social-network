@@ -1,4 +1,6 @@
-# Screenshots
+# Groupomania social network
+
+## Screenshots
 
 <div align="center">
     <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/login.PNG?raw=true" height="150px"</img>
@@ -14,14 +16,14 @@
 </div>
 
 
-# Require
+## Require
 
 - [Node.js](https://nodejs.org/fr/download/releases/) v.14.15.1
 
 - [MySQL Server](https://www.mysql.com/fr/downloads/) v.8.0
 
 
-# Install
+## Install
 
 Execute
 
@@ -34,7 +36,7 @@ npm install
 ```
 
 
-# Import database
+### Import database
 
 To import a database, create the database using the MySQL Command Line :
 
@@ -55,7 +57,7 @@ Put your SQL data information in this file :
 ```
 
 
-# Run
+## Run
 
 to run back-end server, execute :
 
