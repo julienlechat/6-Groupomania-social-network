@@ -26,9 +26,13 @@
 Execute
 
 `mkdir <FOLDER_NAME>
+
 cd <FOLDER_NAME>
+
 git clone https://github.com/julienlechat/reseau-social-entreprise.git
+
 cd BACK
+
 npm install`
 
 
@@ -52,6 +56,7 @@ Put your SQL data information in this file :
 to run back-end server, execute :
 
 `cd <FOLDER_NAME>/BACK
+
 node server.js`
 
 now you will start front-end server
@@ -59,6 +64,7 @@ now you will start front-end server
 Open another shell and execute :
 
 `cd <FOLDER_NAME>/FRONT
+
 ng serve`
 
 Go to `http://localhost:4200/`.
