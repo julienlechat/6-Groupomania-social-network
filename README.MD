@@ -1,5 +1,7 @@
 # Groupomania social network
 
+This repository is a simple prototype of social network make during my learning with Openclassrooms
+
 ## Screenshots
 
 <div align="center">
