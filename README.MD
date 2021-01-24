@@ -29,7 +29,7 @@ Execute
 
 ```Shell
 mkdir <FOLDER_NAME>
-cd <FOLDER_NAME>
+cd <FOLDER_NAME>/reseau-social-entreprise
 git clone https://github.com/julienlechat/reseau-social-entreprise.git
 cd BACK
 npm install
@@ -50,10 +50,10 @@ Once it's done open another shell and execute :
 mysql -u [username] -p groupomania < <FOLDER_NAME>/db.sql
 ```
 
-Put your SQL data information in this file :
+Change SQL data information in this file :
 
 ```Shell
-<FOLDER_NAME>/BACK/mysql.js
+reseau-social-entreprise/BACK/mysql.js
 ```
 
 
@@ -62,7 +62,7 @@ Put your SQL data information in this file :
 to run back-end server, execute :
 
 ```Shell
-cd <FOLDER_NAME>/BACK
+cd reseau-social-entreprise/BACK
 node server.js
 ```
 
@@ -71,7 +71,7 @@ now you will start front-end server
 Open another shell and execute :
 
 ```Shell
-cd <FOLDER_NAME>/FRONT
+cd reseau-social-entreprise/FRONT
 ng serve
 ```
 
