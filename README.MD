@@ -16,7 +16,7 @@
 </div>
 
 
-## Require
+## Requirements
 
 - [Node.js](https://nodejs.org/fr/download/releases/) v.14.15.1
 
