@@ -1,6 +1,6 @@
 # Groupomania social network
 
-This repository is a simple prototype of social network make during my learning with Openclassrooms
+This repository is a simple prototype of social network made in Angular
 
 ## Screenshots
 
