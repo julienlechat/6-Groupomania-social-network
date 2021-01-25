@@ -40,7 +40,7 @@ npm install
 
 ### Import database
 
-To import a database, create the database using the MySQL Command Line :
+To import a database, create a new database using the MySQL Command Line :
 
 ```Shell
 CREATE DATABASE groupomania;
