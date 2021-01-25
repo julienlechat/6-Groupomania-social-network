@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
             }
           }
         );
-        this.auth.ctrlToken()
+        if (localStorage.getItem('token')) this.auth.ctrlToken()
       }
     );
   }

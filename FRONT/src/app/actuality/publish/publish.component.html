@@ -6,7 +6,7 @@
             
             <div class="d-flex my-3">
                 <div class="d-flex align-items-start">
-                    <img [src]="img_profil" width="50" height="50" class="rounded-circle shadow img-profile">
+                    <img [src]="img_profil" width="50" height="50" class="rounded-circle shadow img-profile" alt="photo de profil">
                     <div class="ms-2 d-flex align-items-center gp-icon">
                         <i class="fas fa-angle-double-right prefix"></i>
                     </div>
@@ -16,7 +16,7 @@
 
             <!-- IMAGE PREVIEW  -->
             <div class="imagePreview mb-3" *ngIf="imageURL && imageURL !== ''">
-                <img [src]="imageURL" class="imgPreview">
+                <img [src]="imageURL" class="imgPreview" alt="image preview">
             </div>
 
             <div class="d-flex justify-content-center mx-2">

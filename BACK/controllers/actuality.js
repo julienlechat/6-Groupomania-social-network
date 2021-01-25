@@ -11,12 +11,15 @@ exports.getActus = async (req,res) => {
     const sql = `SELECT post.date, post.img, post.text, users.lastname, users.firstname, users.img_profil, post.user, users.role, post.id,
                 COUNT(CASE WHEN post_like.statut = 1 THEN 1 END) AS numberLike,
                 COUNT(CASE WHEN post_like.statut = -1 THEN 1 END) AS numberDislike,
-                (CASE WHEN post_like.user = ? THEN post_like.statut ELSE '0' END) AS likedByUser
+                (CASE 
+                    WHEN COUNT(distinct case WHEN post_like.user = ? AND post_like.statut = '-1' THEN 1 ELSE null END) > 0 THEN '-1'
+                    WHEN COUNT(distinct case WHEN post_like.user = ? AND post_like.statut = '1' THEN 1 ELSE null END) > 0 THEN '1'
+                ELSE '0' END) AS likedByUser
                 FROM post
                 join users on post.user = users.id
                 LEFT JOIN post_like ON post.id = post_like.id_post
                 GROUP BY 1 ORDER BY post.id DESC LIMIT 10`
-    const sqlREQ =  mysql.format(sql, [userId])
+    const sqlREQ =  mysql.format(sql, [userId, userId])
 
     try { // Essaye d'envoyer la requete SQL
         const post = await db.query(sqlREQ)

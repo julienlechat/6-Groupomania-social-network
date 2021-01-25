@@ -21,12 +21,15 @@ exports.getProfileById = async (req, res) => {
     const postSQL = mysql.format(`SELECT post.id, post.date, post.img, post.text,
                                 COUNT(CASE WHEN post_like.statut = 1 THEN 1 END) AS numberLike,
                                 COUNT(CASE WHEN post_like.statut = -1 THEN 1 END) AS numberDislike,
-                                (CASE WHEN post_like.user = post.user THEN post_like.statut ELSE '0' END) AS likedByUser
+                                (CASE 
+                                    WHEN COUNT(distinct case WHEN post_like.user = ? AND post_like.statut = '-1' THEN 1 ELSE null END) > 0 THEN '-1'
+                                    WHEN COUNT(distinct case WHEN post_like.user = ? AND post_like.statut = '1' THEN 1 ELSE null END) > 0 THEN '1'
+                                ELSE '0' END) AS likedByUser
                                 FROM post
                                 LEFT JOIN post_like ON post.id = post_like.id_post
                                 WHERE post.user = ?
                                 GROUP BY 1 ORDER BY post.id DESC LIMIT 10`,
-                                [req.params.id])
+                                [req.token.userId, req.token.userId, req.params.id])
 
     const commentSQL = `SELECT users.lastname, users.firstname, users.img_profil, users.role, post_comment.id, post_comment.date, post_comment.msg, post_comment.user
                         FROM post_comment

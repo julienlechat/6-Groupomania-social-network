@@ -10,7 +10,7 @@
 
         <div class="card-header d-flex justify-content-between bg-white">
           <div class="d-flex align-items-center">
-            <img [src]="actu.img_profil" width="50" height="50" class="rounded-circle img-profil">
+            <img [src]="actu.img_profil" width="50" height="50" alt="photo de profil" class="rounded-circle img-profil">
             <div class="ms-2 align-items-left">
               <a class="link-profile" [routerLink]='Actuality.linkProfile(actu.userid)'>
                 <p class="m-0 fw-bold text-start">
@@ -29,7 +29,7 @@
         </div>
 
         <div class="card-body p-0">
-            <img *ngIf="actu.img" [src]="actu.img" alt="" [ngClass]="(!actu.text)?'img-fluid img-actuality mb-2':'img-fluid img-actuality'" id="dynamic" (click)="viewPicture($event)">
+            <img *ngIf="actu.img" [src]="actu.img" alt="" [ngClass]="(!actu.text)?'img-fluid img-actuality mb-2':'img-fluid img-actuality'" alt="publication" id="dynamic" (click)="viewPicture($event)">
             <p *ngIf="actu.text" class="card-text text-start my-3 mx-3">{{ actu.text }}</p>
         </div>
         <div class="card-body text-muted d-flex justify-content-evenly px-2 likebar">
@@ -45,7 +45,7 @@
         </div>
         <div *ngFor="let comment of actu.comments" class="card-body p-0 mb-2 d-flex justify-content-between">
           <div class="d-flex align-items-center mx-4 my-1">
-            <img [src]="comment.img_profil" width="45" height="45" class="rounded-circle img-profil">
+            <img [src]="comment.img_profil" width="45" alt="photo de profil" height="45" class="rounded-circle img-profil">
             <div class="ms-2 d-flex justify-content-center flex-column">
               <div class="d-flex flex-row">
                 <a class="link-profile" [routerLink]='Actuality.linkProfile(comment.userId)'>
@@ -68,7 +68,7 @@
         <form (submit)="addComment($event, actu.postId, actu.id)">
           <div class="card-footer text-muted d-flex justify-content-evenly px-3">
             <div class="d-flex align-items-center" style="width: 100%">
-                <img [src]="img_profil" width="45" height="45" class="rounded-circle img-profil">
+                <img [src]="img_profil" width="45" height="45" alt="photo de profil" class="rounded-circle img-profil">
                 <input placeholder="Exprimez vous..." maxlength="255" class="gp-textarea shadow-sm rounded ms-2 d-flex">
             </div>
           </div>
