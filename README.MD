@@ -5,16 +5,16 @@ This repository is a simple prototype of social network made in Angular
 ## Screenshots
 
 <div align="center">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/login.PNG?raw=true" height="150px"</img>
+    <img src="https://github.com/julienlechat/groupomania-social-network/blob/main/screenshot/login.PNG?raw=true" height="150px"</img>
     <img height="0" width="8px">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-2.PNG?raw=true" height="150px"</img>
+    <img src="https://github.com/julienlechat/groupomania-social-network/blob/main/screenshot/actuality-2.PNG?raw=true" height="150px"</img>
     <img height="0" width="8px">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/settings.PNG?raw=true" height="150px"</img>
+    <img src="https://github.com/julienlechat/groupomania-social-network/blob/main/screenshot/settings.PNG?raw=true" height="150px"</img>
 </div><br />
 <div align="center">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/actuality-1.PNG?raw=true" height="320px"</img>
+    <img src="https://github.com/julienlechat/groupomania-social-network/blob/main/screenshot/actuality-1.PNG?raw=true" height="320px"</img>
     <img height="0" width="8px">
-    <img src="https://github.com/julienlechat/reseau-social-entreprise/blob/main/screenshot/profile.PNG?raw=true" height="320px"</img>
+    <img src="https://github.com/julienlechat/groupomania-social-network/blob/main/screenshot/profile.PNG?raw=true" height="320px"</img>
 </div>
 
 
@@ -31,8 +31,8 @@ Execute
 
 ```Shell
 mkdir <FOLDER_NAME>
-cd <FOLDER_NAME>/reseau-social-entreprise
-git clone https://github.com/julienlechat/reseau-social-entreprise.git
+cd <FOLDER_NAME>/groupomania-social-network
+git clone https://github.com/julienlechat/groupomania-social-network.git
 cd BACK
 npm install
 ```
@@ -64,7 +64,7 @@ reseau-social-entreprise/BACK/mysql.js
 to run back-end server, execute :
 
 ```Shell
-cd reseau-social-entreprise/BACK
+cd groupomania-social-network/BACK
 node server.js
 ```
 
@@ -73,7 +73,7 @@ now you will start front-end server
 Open another shell and execute :
 
 ```Shell
-cd reseau-social-entreprise/FRONT
+cd groupomania-social-network/FRONT
 ng serve
 ```
 
