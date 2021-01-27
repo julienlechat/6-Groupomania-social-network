@@ -55,7 +55,7 @@ mysql -u [username] -p groupomania < <FOLDER_NAME>/db.sql
 Change SQL data information in this file :
 
 ```Shell
-reseau-social-entreprise/BACK/mysql.js
+groupomania-social-network/BACK/mysql.js
 ```
 
 
