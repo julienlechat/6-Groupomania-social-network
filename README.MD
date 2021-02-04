@@ -31,9 +31,9 @@ Execute
 
 ```Shell
 mkdir <FOLDER_NAME>
-cd <FOLDER_NAME>/groupomania-social-network
+cd <FOLDER_NAME>
 git clone https://github.com/julienlechat/groupomania-social-network.git
-cd BACK
+cd groupomania-social-network/BACK
 npm install
 ```
 
