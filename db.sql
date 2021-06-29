@@ -133,7 +133,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'jul61@hotmail.fr','$2b$10$70ggN.UIC.2kfSqF/SGOxOuh/dcoysn/aMZJ6CrR14r0/urBdt3Vq','LECHAT','Julien','profile8064-1611015967845.jpg','Développeur Web',1),(2,'test@test.test','$2b$10$J7KfNMKWmKaUIt8DCWg98eJ7ZTTKO6ltMSn6f/iM7PD038RatHKA6','MACRON','Emmanuel','Emmanuel_Macron.jpg',NULL,0),(3,'test2@test.test','$2b$10$6fLcJE5qBu4ogq46p8mJEuzgEUraM0q7Pf1mBy3D2t6krJo9fSWvy','CASTEX','Jean','castex.jpg','Je suis un profil d\'essai',0),(4,'test3@test.test','$2b$10$mBie70fhdS0IDXl.D/UUOenLI6uogWAUamUwFhcxLu5rcFcd1jM1O','Mouloude','Jean',NULL,NULL,0);
+INSERT INTO `users` VALUES (1,'test@test.test','$2b$10$70ggN.UIC.2kfSqF/SGOxOuh/dcoysn/aMZJ6CrR14r0/urBdt3Vq','LECHAT','Julien','profile8064-1611015967845.jpg','Développeur Web',1),(2,'test@test.test','$2b$10$J7KfNMKWmKaUIt8DCWg98eJ7ZTTKO6ltMSn6f/iM7PD038RatHKA6','MACRON','Emmanuel','Emmanuel_Macron.jpg',NULL,0),(3,'test2@test.test','$2b$10$6fLcJE5qBu4ogq46p8mJEuzgEUraM0q7Pf1mBy3D2t6krJo9fSWvy','CASTEX','Jean','castex.jpg','Je suis un profil d\'essai',0),(4,'test3@test.test','$2b$10$mBie70fhdS0IDXl.D/UUOenLI6uogWAUamUwFhcxLu5rcFcd1jM1O','Mouloude','Jean',NULL,NULL,0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
